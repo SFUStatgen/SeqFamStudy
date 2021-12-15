@@ -11,4 +11,4 @@ We created three folders to represent each box in the above flow chart. They are
 - SimRVped - contains supplementary materials coressponding to the blue box
 - SimRVseq - contains Supplementary materials coressponding to the oragnge box
 
-Inside each folder there is another folder named as Supplementar Materials.
+Inside each folder there is another folder named as Supplementary Materials.
