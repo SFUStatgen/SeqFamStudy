@@ -1,0 +1,96 @@
+initialize() {
+
+// Read recombination map cretated by SimRVSequence R package
+
+lines = readFile("~/Slim_Map_chr.txt");
+Rrates = NULL;
+Mrates = NULL;
+ends = NULL;
+
+for (line in lines)
+{
+components = strsplit(line);
+ends = c(ends, asInteger(components[3]));
+Rrates = c(Rrates, asFloat(components[1]));
+Mrates = c(Mrates, asFloat(components[2]));
+}
+Exomelength = ends[size(ends)-1];
+
+initializeRecombinationRate(Rrates, ends);
+
+initializeMutationRate(Mrates, ends);
+
+initializeSex("A"); // Specifies modeling of an autosome
+
+initializeMutationType("m1", 0.5, "g", -0.043, 0.23); //non-synonymous
+initializeMutationType("m2", 0.5, "f", 0.0); // synonymous
+
+m1.mutationStackPolicy = "l";
+m2.mutationStackPolicy = "l";
+
+//initializeGenomicElementType("g1", c(m1,m2), c(2, 1));
+
+initializeGenomicElementType("g1", m1, 1); // positions 1 and 2
+initializeGenomicElementType("g2", m2, 1); // positions 3
+
+
+starts = repEach(seqLen(asInteger(round(Exomelength/3))) * 3, 2) + rep(c(0,2), asInteger(round(Exomelength/3)));
+end_pos = starts + rep(c(1,0), asInteger(round(Exomelength/3)));
+types = rep(c(g1,g2), asInteger(round(length(starts)/2)));
+initializeGenomicElement(types, starts, end_pos);
+
+}
+
+// Initialize the ancestral African population
+1 { sim.addSubpop("p1", asInteger(round(7310.370867595234))); }
+// END BURN-IN; expand the African population
+73105 { p1.setSubpopulationSize(asInteger(round(14474.54608753566))); }
+// Split Eurasians (p2) from Africans (p1) and set up migration
+76968 {
+sim.addSubpopSplit("p2", asInteger(round(1861.288190027689)), p1);
+p1.setMigrationRates(c(p2), c(15.24422112e-5));
+p2.setMigrationRates(c(p1), c(15.24422112e-5));
+}
+// Split p2 into European (p2) and East Asian (p3); resize and migration
+78084 {
+sim.addSubpopSplit("p3", asInteger(round(553.8181989)), p2);
+p2.setSubpopulationSize(asInteger(round(1032.1046957333444)));
+p1.setMigrationRates(c(p2, p3), c(2.54332678e-5, 0.7770583877e-5));
+p2.setMigrationRates(c(p1, p3), c(2.54332678e-5, 3.115817913e-5));
+p3.setMigrationRates(c(p1, p2), c(0.7770583877e-5, 3.115817913e-5));
+}
+// Set up exponential growth in Europe (p2) and East Asia (p3)
+78084:79012{
+t = sim.generation - 78084;
+p2_size = round(1032.1046957333444 * (1 + 0.003784324268)^t);
+p3_size = round(553.8181989 * (1 + 0.004780219543)^t);
+p2.setSubpopulationSize(asInteger(p2_size));
+p3.setSubpopulationSize(asInteger(p3_size));
+}
+
+// Create the ADMIX population
+79012 early(){
+sim.addSubpop("p4", 30000); //This new subpopulation is created with 30000 new empty individuals
+p4.setMigrationRates(c(p1, p2, p3), c(0.1666667, 0.3333333, 0.5));
+}
+//After this early() event, SLiM will generate offspring, and the empty individuals in p4 will be
+// discarded and replaced by migrant offspring from p1, p2 and p3 as requested.
+79012 late(){
+p4.setMigrationRates(c(p1, p2, p3), c(0, 0, 0));
+}
+
+// Set up exponential growth in Admix
+79012:79024 {
+t = sim.generation - 79012;
+p4_new_size = round(30000 * (1 + 0.05)^t);
+p4.setSubpopulationSize(asInteger(p4_new_size));
+}
+
+// Output and terminate
+79024 late() {
+// obtain a random sample of genomes from the whole population
+p4.individuals.genomes.output("~/output_chr.txt");
+//This takes a sample of all individuals(entire population), gets their genomes, and outputs those genomes.  
+//In this case, the genomes will be paired from the individuals chosen.
+
+}
