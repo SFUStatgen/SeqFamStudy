@@ -9,5 +9,5 @@ Each coloured box in the chart is a major step in our data simulation. We have c
 
 1. SLiM (green box) - materials for simulating the population-level sequence data in SLiM.
 2. SimRVped (blue box) - materials for simulating the 150 families containing three or more individuals affected with lymphoid cancer.
-3. SimRVseq (orange box) - materials for generating the sequence data of affected individuals and their relatives in the 150 families in step 2, given that they come from the population in step 1.
+3. SimRVseq (orange box) - materials for generating the sequence data of affected individuals and their relatives in the 150 families from step 2, given that they come from the population in step 1.
 
