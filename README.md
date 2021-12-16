@@ -3,7 +3,7 @@ Simulated Sequencing Study of Lymphoid Cancer Families
 
 This repository contains the RMarkdown files and other scripts to generate the simulated data for an exome-sequencing study of 150 families ascertained to contain at least three members affected with lymphoid cancer.  The following flow chart explains our work flow.
 
-![Flow Chart](https://github.com/SFUStatgen/SeqFamStudy/blob/main/SLiM/Supplementary%20Materials/Flow%20Chart.png)
+![Flow Chart](https://github.com/SFUStatgen/SeqFamStudy/blob/main/SLiM/Flow%20Chart.png)
 
 Each coloured box in the chart is a major step in our data simulation. We have created three folders to represent each box. They are:
 
