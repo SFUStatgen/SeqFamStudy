@@ -1,5 +1,5 @@
 ---
-title: "Supplementary Material 1-A :Simulate SNV data for pedigree founders"
+title: "Supplementary Material 1-A: Simulate SNV sequence data for pedigree founders"
 author: "Nirodha Epasinghege Dona, Jinko Graham"
 date: "`r Sys.Date()`"
 bibliography: MyCollection.bib
@@ -33,51 +33,38 @@ knitr::opts_chunk$set(echo = TRUE)
 \newpage
 
 
-
-- The following figure illustrates flow chart for the whole project. 
+- This is the first RMarkdown document describing how we simulated exome-sequencing data in pedigrees ascertained for three or more relatives affected with lymphoid cancer. The following flow chart illustrates the overall workflow for this project. 
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[height = 1 \textwidth , width = 2 \textwidth]{Flow Chart.pdf}
-	\caption{The flow chart which represents the entire work flow of simulating the sequence data for the pedigrees.}
+	\caption{Flow chart showing the overall work flow for simulating the exome-sequencing data for ascertained pedigrees.}
 	\label{flow chart}
 \end{figure}
 
-- We are focusing on the part which is labelled as 1 (the green box) through this R-markdown document.
+- In this RMarkdown document, we focus on the part of the flowchart labelled as 1 (the green box).
+To start, we require single-nucleotide variant (SNV) sequences for pedigree founders. These founders are 
+assumed to be sampled from an American Admixed population, which we simulate with the evolutionary 
+simulation package \texttt{SLiM} [@Haller2019a]. In particular, we simulate genome-wide sequences
+of exons only, to mimic exome sequencing.
 
-- In-order to simulate sequence data for sample of pedigrees, we need to simulate single-nucleotide variant (SNV) data for pedigree founders of the sampled pedigrees. 
+- The outline of this document as follows. Section 1 explains the demographic model for the source
+population of the pedigree founders. Section 2 explains how we create the \texttt{SLiM} recombination 
+map using the \texttt{create\_SlimMap()} function in the \texttt{SimRVSequence} R package [@Nieuwoudt2020]. 
+Section 3 discusses how we set the parameters in our SLiM model to simulate the exon-only SNV sequences. 
 
-- For this we use \texttt{SLiM} [@Haller2019a] which is a reliable evolutionary simulation package.
-
-- \texttt{SLiM} allows us to simulate genome-wide sequence data forward in time for a large population of individuals. 
-
-- In our study, we consider genome-wide exon-only data to mimic an exome sequencing family study.
-
-- This document explains all the steps that we use to simulate population SNV data for pedigree founders using \texttt{SLiM}. 
-
-- The outline of this document as follows.
-
-- Section 1 explains the demographic model from the literature that we use to represent our population of founders in sampled pedigrees.
-
-- Section 2 explains how we create the \texttt{SLiM} recombination map using the \texttt{create\_SlimMap()} function in the \texttt{SimRVSequence} [@Nieuwoudt2020] R package. 
-
-- In section 3, we discuss our SLiM model to simulate the SNV data under the demographic model. 
-
-- The Final outcome of this R-markdown document is \texttt{SLiM\_output} data file which gets used by our R-markdown file 3 to generate the exome sequencing data in family base study. 
+- The final outcome of this RMarkdown document is the \texttt{SLiM\_output} sequences file called by our third RMarkdown document. This sequences file is used to generate the exome-sequencing data in the family-based 
+study of lymphoid cancer families. 
 
 # Explain the demographic model
 
 - Demographic models play a major role in understanding the genetic patterns in human populations. 
-- Throughout human evolution, different demographic events such as expansion, migration, splitting etc. occurred and these events affected the genetic diversity [@Ragsdale2019]. 
+Throughout human evolution, different demographic events such as expansion, migration, splitting etc. 
+have occurred, affecting the genetic diversity [@Ragsdale2019]. The population-genetics literature has
+several established demographic models inferred from genetic data [@Gutenkunst2009]. 
 
-
-- In the population-genetics literature, there are several established demographic models inferred from genetic data. 
-
-- As pointed out by @Gutenkunst2009, we can use existing demographic models for the sampling designs of our studies. 
-
-- We consider the demographic models in \texttt{stdpopsim} [@10.7554/eLife.54967], the standard library of population genetic simulation models. 
-
-- In this library, there are around nine demographic models.  
+- We consider a demographic model in \texttt{stdpopsim}, the standard library of population-genetic 
+simulation models [@10.7554/eLife.54967]. This library has around nine demographic models.  
 
 - Among these models, we select the **American Admixture** demographic model of @Browning2018 because of our interest in the Northern American population. 
 
