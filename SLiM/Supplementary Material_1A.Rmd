@@ -144,7 +144,7 @@ model to simulate population-level exon-only SNV sequences.
    
 The following SLiM script generates genome-wide exon-only SNV sequences for a population 
 under the American-Admixture demographic model. The script is a \texttt{.slim} file
-embedded in an R code chunk that is not run. The original \texttt{SLiM\_American\_Admixture.slim} 
+embedded in an R code chunk (that is not run). The original \texttt{SLiM\_American\_Admixture.slim} 
 file can be found on our GitHub page at https://github.com/SFUStatgen/SeqFamStudy/.
 
 ```{r, eval = FALSE}
@@ -154,7 +154,7 @@ initialize() {
 // Seed number which helps to reproduce the same result
 setSeed(2181144364021)
   
-// Read recombination map cretated by SimRVSequence R package
+// Read recombination map created by SimRVSequence R package
 
 lines = readFile("~/Slim_Map_chr.txt");
 Rrates = NULL;
@@ -251,83 +251,42 @@ p4.individuals.genomes.output(filePath = "~/Output_Full.txt");
 
 ```
 
-- In SLiM modelling, the first step is to initialize the required parameters to begin the simulation.
+Before the simulation starts, we need to initialize the mutation rate, recombination rate, genomic structure and so forth as the simulation parameters [@Haller2019a]. We read the recombination map into SLiM using the \texttt{readFile()} function. Inside this function, we supply the path to our recombination map text file.
+Then we create three null vectors named \texttt{Rrates}, \texttt{Mrates} and \texttt{ends} to save the recombination rates, mutation rates and end positions of each exon in our recombination map, respectively. 
   
-- The \texttt{initialize()} callback does this task.
-
-- Before the simulation starts, we need to initialize the mutation rate, recombination rate, genomic structure and so forth as the simulation parameters [@Haller2019a].
+Next, we use a \texttt{for}-loop to move along the genome, reading each line of the recombination map and:
+    - save the recombination rate, mutation rate and end position of each genomic segment, 
+    - initialize the recombination rate for each genomic segment with the \texttt{initializeRecombinationRate()} function, by specifying the rate and the end position of the genomic segment, 
+    - initialize the mutation rate for each genomic segment with the \texttt{initializeMutationRate()} function, 
+    - specify that the genomic segment belongs to an autosomal chromosome with the \texttt{initializeSex()} function,
+    - specify the mutation type for each genomic segment with the \texttt{initializeMutationType()} function (see below),
+    - specify the mutation stacking policy for each genomic segment with the 
+    \texttt{mutationStackPolicy} command (see below),
+    - specify the type for each genomic segment with the \texttt{initializeGenomicElementType()} function (see below).
   
-- Let's discuss the \texttt{initialize()} callbacks in our SLiM model.
-  
-- Our first step inside this \texttt{initialize()} callback is to load the recombination map we designed in R using the \texttt{create\_SlimMap()} function.
-  
-- We read the recombination map into SLiM using the \texttt{readFile()} function. Inside this function, we supply the path to our recombination map text file.
-  
-- Then we create three null vectors named as \texttt{Rrates}, \texttt{Mrates} and \texttt{ends} to save the recombination rates, mutation rates and end positions of each exon in our recombination map, respectively. 
-  
-- We use a \texttt{for} loop to read each line of the loaded text file of our recombination map and save the three variables in the above mentioned three vectors.
-  
-- We initialize the recombination rates along the whole exome. The \texttt{initializeRecombinationRate()} function is used to specify the recombination rates and end positions of these rates. The first parameter is the recombination rates and the second parameter is the positions of the exons on the chromosomes.
-  
-- We initialize the mutation rates as well. The  \texttt{initializeMutationRate()} function is used for this task. 
-  
-- \texttt{initializeMutationRate()} initializes the mutation rates along the chromosomes. 
-  
-- Inside the  \texttt{initializeMutationRate()} function, we use the the vector of mutation rates along the chromosomes as the first parameter and the positions of the exons in the chromosomes as the second parameter.
-  
-- The \texttt{initializeSex()} function defines the type of the chromosome that we need to simulate. Since we model autosomes we define it as "A". 
-  
-- The next initialization callback is the mutation type. For this, first we use the \texttt{initializeMutationType()} function to create different types of mutations.
-  
-- In exons, the last base-pair position in a 3 base-pair "codon" (coding for an amino acid in a protein) is called a synonymous site. 
-  
-- Synonymous sites are viewed as selectively neutral in comparison to the first two base-pair positions in a codon which are non-synonymous. 
-  
-- Therefore, we simulate two types of mutations here. They are synonymous and non-synonymous.
-  
-- The \texttt{initializeMutationType}("m1", 0.5, "g", -0.043, 0.23) callback explains all the parameters that are held by the "m1" mutation type. 
-  
-- We use "m1" to represent the non-synonymous mutations. These non-synonymous mutations have a dominance coefficient of 0.5 and the selection coefficient is generated from a gamma distribution with mean -0.043 and shape parameter is 0.23 [@Harris2016].
+In exons, the last base-pair position in a three base-pair codon (coding for an amino acid in a protein) is a synonymous site. Synonymous sites are viewed as selectively neutral in comparison to the first two base-pair positions in a codon, which are non-synonymous. Therefore, we simulate two types of mutations: synonymous and non-synonymous.
+The \texttt{initializeMutationType}("m1", 0.5, "g", -0.043, 0.23) callback in the for-loop explains all the parameters that are held by the "m1" mutation type. We use "m1" to represent the non-synonymous mutations. These non-synonymous mutations have a dominance coefficient of 0.5 and the selection coefficient is generated from a gamma distribution with mean -0.043 and shape parameter is 0.23 [@Harris2016]. We initialize the synonymous mutations separately with another call to the \texttt{initializeMutationType()} function. In \texttt{initializeMutationType}("m2", 0.5, "f", 0.0) callback, the "m2" mutation type represents the synonymous mutations and they have a fixed selection coefficient denoted by "f". The selection coefficient of this type of mutation is always 0, as seen in the fourth argument of the function. The dominance coefficient in the second argument of the function is 0.5.
  
-- Then for the synonymous mutations, we again initialize them separately by using another \texttt{initializeMutationType} function. 
-
-- In \texttt{initializeMutationType}("m2", 0.5, "f", 0.0), the "m2" mutation type represents the synonymous mutations and they have a fixed selection coefficient denoted by "f". The selection coefficient of this type of mutations is always 0, as seen in the fourth argument of the function. The dominance coefficient in the second argument is 0.5.
+In SLiM (as in biology), the individuals rather than the mutations are under selection.
+Selection acts on the individual, through their fitness value. The fitness value of an individual is calculated from the fitness effects of all the mutations carried by that individual (based upon their selection coefficient, dominance coefficient, and heterozygous/homozygous state). All the fitness effects are multiplied together to produce the individual fitness. The individual fitness value then affects selection. Specifically, in the default Wright-Fisher (WF) model of SLiM (which we use), lower fitness means a lower probability of mating.  As a result, deleterious mutations tend to decrease in frequency and beneficial mutations tend to increase in frequency. 
  
-- In SLiM (as in biology), mutations themselves are not under selection; individuals are under selection. The selection is done based on the fitness value of the individuals.
+SLiM allows for recurrent mutations at a given base position on a given sequence [@Haller2019a]. 
+By default, SLiM "stacks" any mutations that occur in the same location as pre-existing mutations
+on a given sequence. This default behaviour of "mutation stacking" ("s" for stacked), is
+changed to "l" (last) with the command \texttt{m1.mutationStackPolicy = "l"}, so that new mutations occurring in the same location as pre-existing mutations on a given sequence replace the pre-existing mutations.
 
-- The fitness value of an individual is calculated from the fitness effects of all mutations carried by that individual (based upon selection coefficient, dominance coefficient, and heterozygous/homozygous state). All the fitness effects get multiplied together to produce the individual fitness.
- 
-- The individual fitness value then affects selection; in Wright-Fisher (WF) models (this is the default setting in SLiM), lower fitness means a lower probability of mating. 
-
-- Our simulation is designed under the default model, the Wright-Fisher model.
- 
-- As a result, deleterious mutations tend to decrease in frequency and beneficial mutations tend to increase in frequency. 
- 
-- In SLiM recurrent mutations at a given base position can occur [@Haller2019a].
-
-- In SLiM the default behavior is "mutation stacking" referred to as "s"(stacked). In our model this default behavior is changed to "l" (last) with the command \texttt{m1.mutationStackPolicy = "l"}, so that new mutations occurring in the same location as pre-existing mutations on a given genome replace the pre-existing mutations.
-
-- The next initialization task is to create the chromosome structure. In SLiM we can model different genomic structures in the chromosomes.
-
-- In our study, we only consider the exons in our chromosomes. 
-
-- Exons have two genomic element types, one for non-synonymous sites (positions 1 and 2 of the resulting codon) and the other for synonymous sites (position 3 of the resulting codon).
-
-- We called these genomic element types "g1" and "g2" and they would alternate as g1, g2, g1, g2, g1, etc. along the exome until the end position of a chromosome is reached. 
-
-- The first genomic element type (corresponding to the non-synonymous sites) could have mutations with selection coefficients that come from the negative gamma distribution (which we initialize as "m1" to represent the non-synonymous mutations). 
-
-- The second genomic element type (corresponding to the synonymous sites) could have neutral mutations (which we initialize as "m2" to represent the synonymous mutations).
-
-- We use the \texttt{initializeGenomicElementType()} function to specify these two genomic elements and our exome structure.
-
-- \texttt{initializeGenomicElementType("g1", m1, 1)} specifies that genomic element type "g1" is defined as using mutation type "m1" for all of its mutations.
-
-- We define the second genomic element type "g2" using mutation type "m2" for all its mutations.
-
-- Then we code to create the exome structure creating start and end positions of "g1" and "g2" genomic elements.
-
-- As the final initialization task, we initialize the two genomic elements "g1" and "g2" with \texttt{initializeGenomicElement()}, supplying their starting and ending positions along the exome. 
+The next initialization task is to create the chromosome structure. In SLiM we can model different 
+genomic structures in the chromosomes. We consider exons only, which have two genomic element types:
+one for non-synonymous sites (base positions 1 and 2 of a codon) and the other for synonymous sites 
+(base position 3 of a codon). These genomic element types are called "g1" and "g2" and alternate 
+as g1, g2, g1, g2, g1, etc. along the exome until the end position of a chromosome is reached. 
+The first genomic-element type corresponds to non-synonymous sites, is initialized as "m1"
+and could have mutations with selection coefficients that come from the negative gamma distribution.
+The second genomic element type corresponds to the synonymous sites, is initialized as "m2" 
+and could have neutral mutations. We use the \texttt{initializeGenomicElementType()} function to specify these two genomic elements and our exome structure. For example, \texttt{initializeGenomicElementType("g1", m1, 1)} specifies that genomic element type "g1" is defined as using mutation type "m1" for all of its mutations.
+The second genomic element type "g2" is defined as using mutation type "m2" for all its mutations.
+Then we create the alternating start and end positions of the "g1" and "g2" genomic elements along the exome.
+Finally, we initialize the two genomic elements "g1" and "g2" with \texttt{initializeGenomicElement()}, supplying their starting and ending positions along the exome. 
 
 - After the \texttt{initialize()} callbacks end, we run the first generation of our simulation. 
 
