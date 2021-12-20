@@ -141,23 +141,17 @@ As described in the next section, we use SLiM together with the inferred America
 model to simulate population-level exon-only SNV sequences.
 
 # Simulate the demographic model in SLiM
-  
-- The SLiM manual [@Haller2019a] explains the Out-of-Africa model of @Gravel2011.
-  
-- We use this Out-of-Africa SLiM script to develop the American admixture model explained in @Browning2018. 
-  
-- The following SLiM script is for the American admixture model. 
-
-- Let's discuss the SLiM model in more detail.
-
-- Note: The following code chunk is not in R but rather is a \texttt{.slim} file. To provide a clear representation of the SLiM script to the readers, we use an R code chunk to represent it. However, you can find the original \texttt{SLiM\_American\_Admixture.slim} file in our GitHub page.
-
+   
+The following SLiM script generates genome-wide exon-only SNV sequences for a population 
+under the American-Admixture demographic model. The script is a \texttt{.slim} file
+embedded in an R code chunk that is not run. The original \texttt{SLiM\_American\_Admixture.slim} 
+file can be found on our GitHub page at https://github.com/SFUStatgen/SeqFamStudy/.
 
 ```{r, eval = FALSE}
 
 initialize() {
 
-// Seed number which helps to repoduce the same result
+// Seed number which helps to reproduce the same result
 setSeed(2181144364021)
   
 // Read recombination map cretated by SimRVSequence R package
