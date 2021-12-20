@@ -299,11 +299,8 @@ according to @Browning2018. Once the admixed sub-population is created, migratio
 and it grows exponentially at rate 5% per generation until the present at 79024 generations into the simulation.
 Finally in generation 79024 of the simulation (the present) we terminate our SLiM simulation and collect the output.
 
-- Since our main study is based on the Northern American population, we only consider the American admixed sub-population as the output. 
-
-- Therefore, we use the function \texttt{p4.individuals.genomes.output()} to get the all individual's genomes of the admixed sub-population. 
-
-- The following example represents the format of the output returned from the \texttt{p4.individuals.genomes.output()} function.
+We only consider the SLiM output for the American admixed sub-population. 
+We extract the genomic sequences of all individuals in the admixed sub-population with the function \texttt{p4.individuals.genomes.output()} obtaining output formatted as follows: 
 
 \textbf{\#OUT: 79024 GS 107752 /project/6007536/epasiedn/SLiM/American\_Admixture/Output\_Full.txt} \newline
 Mutations: \newline
@@ -318,20 +315,16 @@ p\*:2 A 10605 1 2 4 15639 15640 6 10608 15641 15642 15643 15644\newline
 p\*:3 A 0 1 2 19096 19097 4 6 19098 19099 9 10 19100\newline
 ...
 
-- In the above example output, the first row starts with \# OUT: and this is followed by the generation (79024) in which the output is generated. Then "GS" represents the "genomes SLiM format" and this is followed by the sample size in number of genomes (2* number of individuals). Finally, the full path where we save the output is printed.
+In the above output, the first line starts with "\# OUT:",  followed by the generation of the simulation (79024) from which the output is obtained. Then "GS" tells us the data is formatted as "genomes SLiM format" and this is followed by the number of haploid genomes (2* number of individuals). Finally, the full path where we save the output is printed. 
 
-- Then the second line starts the mutation section.
+The second line of the output starts the mutation section. 
+In the mutation section, each line represents a mutation which is currently segregating in the population and the nine fields on a line represent the mutation properties. The first field is the SLiM-generated identifier number which helps to identify the mutation easily within the program. The second field is the mutation's identification number. The third field represents the type of the mutation. The fourth field is the base-pair position of the mutation on the chromosome. The fifth and sixth fields represent selection and dominance coefficients, respectively. The seventh field is the sub-population in which the mutation originated. The eighth field is the generation of the simulation when the 
+mutation arose. Finally, the ninth field represents the number of copies of the mutation in the sub-population. 
 
-- In the mutation section each row represents a mutation which is currently segregating in the population and the nine columns represent the mutation properties. 
-
-- The first column is the SLiM-generated identifier number which helps to identify the mutation easily. The second column is the mutation's identification number. The third field represents the type of the mutation. The fourth column is the base-pair position of the mutation on the chromosome. Fifth and sixth columns represent selection and dominance coefficients, respectively. The seventh column is the sub-population in which the mutation originated. The eighth column is the generation when the mutation
-arose. Finally, the ninth column represents the number of copies of the mutation in the sub-population. 
-
-- The last section in the output represents the genomes section. 
-
-- In the genome section a row corresponds to a genome in the sub-population and specifies all the mutations carried by the genome. 
-
-- Because we use \texttt{p4.individuals.genomes.output()}, we get all the genomes in p4 sub-population. The first line in the genomes section in the above example, "p\*: 0", means the 0th genome of the sub-population . Then "A" represents autosome, the type of the genome. This is followed by the SLiM-generated identification numbers of all the mutations carried by this genome. Recall that the SLiM-generated identification numbers are in the first column in the mutation section. 
+The last section in the output represents the genomes section. 
+In the genome section, a line corresponds to a haploid genome in the sub-population. 
+For example, in the first line, "p\*: 0", means the 0th genome of 
+the sub-population . Then "A" represents autosome, the type of the genome. This is followed by the SLiM-generated identification numbers of all the mutations carried by this haploid genome. Recall that the SLiM-generated identification numbers are in the first field of the mutation section. 
 
 ## Simulation on Compute Canada Cluster
 
