@@ -48,9 +48,9 @@ assumed to be sampled from an American Admixed population, which we simulate wit
 simulation package \texttt{SLiM} [@Haller2019a]. In particular, we simulate genome-wide sequences
 of exons only, to mimic exome sequencing.
 
-The outline of this document as follows. Section 1 explains the demographic model for the source
-population of the pedigree founders. Section 2 explains how we create the \texttt{SLiM} recombination 
+The outline of this document as follows. Section 1 explains how we create the \texttt{SLiM} recombination 
 map using the \texttt{create\_SlimMap()} function in the \texttt{SimRVSequence} R package [@Nieuwoudt2020]. 
+Section 2 explains the demographic model for the source population of the pedigree founders.
 Section 3 discusses how we set the parameters in our SLiM model to simulate the exon-only SNV sequences. 
 
 The final outcome of this RMarkdown document is the file \texttt{SLiM\_output} containing SNV
@@ -59,17 +59,66 @@ of this series, the population sequences file is sampled to get the founder sequ
 down the ascertained pedigrees. The final gene-dropping step generates
 the exome-sequencing data in the family-based study of lymphoid cancer families. 
 
+# Create recombination map for SLiM
+
+To simulate the genome-wide exon-only sequences with SLiM, we need to supply a recombination map which reads the exon positions in chromosomes. We use the \texttt{create\_SlimMap()} function in the \texttt{SimRVSequence} [@Nieuwoudt2020] R package, as shown in the next code chunk.
+  
+```{r}
+library(SimRVSequences)
+
+# Load hg_exons data set in SimRVSequence package
+data("hg_exons")
+
+# Create recombination map for exon-only data using the hg_exons dataset
+s_map <- create_slimMap(exon_df = hg_exons)
+head(s_map)
+
+```
+
+We use the \texttt{hg\_exons} dataset in the \texttt{SimRVSequence} package to specify
+the exon positions of each of the 22 human autosomes, based on 
+the hg38 reference genome from the UCSC Genome Browser [@Nieuwoudt2020].
+As shown above, the call to \texttt{create\_SlimMap()} returns a data frame with information about the genetic segments in each chromosome. As an example, the first row in the output above represents information about the genetic segment before the first exon on chromosome 1. 
+The second row represents information about the first exon on chromosome 1. The exon contains 354 base pairs and the recombination and mutation rates in this exon are $10^{-8}$ per site per generation. The other columns of the data frame are described in the \texttt{SimRVSequences} documentation. 
+The recombination rate between adjacent exons is set to the number of base pairs in the 
+intervening intronic segment (\texttt{segLength}) multiplied by $10^{-8}$ per base pair per generation (\texttt{recomb\_rate}). Further, the gap between two unlinked chromosomes is set to be a single base pair 
+and the recombination rate between them is set to be 0.5 per base pair per generation [@Harris2016]. 
+Since we are interested in exon-only data, the mutation rate outside exons is set to zero and mutation rates inside exons is set to $10^{-8}$ per base pair per generation [@Nieuwoudt2020].
+  
+We need three variables from \texttt{s_map()} to create the recombination map for simulating exon-only data by SLiM: \texttt{recRate}, \texttt{mutRate} and \texttt{endPos}.
+We select these three variables and shift the \texttt{endPos} variable forward by one unit because SLiM reads arrays starting at position as 0 rather than 1. We save the resulting output as a text file (\texttt{Slim\_Map\_chr.txt}) to be used as a recombination map for SLiM.
+
+```{r}
+
+# Restrict output to the variables required by SLiM
+slimMap <- s_map[, c("recRate", "mutRate", "endPos")]
+
+# Shift endPos up by one unit
+slimMap$endPos <- slimMap$endPos - 1
+
+# Print first four rows of slimMap
+head(slimMap, n = 4)
+
+# Write the results to a text file
+write.table(slimMap, file ="Slim_Map_chr.txt")
+
+```
+
+The next section explains the demographic model we will use to simulate the population-level,
+exon-only SNV sequences. These sequences will be randomly sampled from the population to
+be assigned to the founders of our ascertained pedigrees in later steps of the workflow.
+
 # Explain the demographic model
 
 Demographic models play a major role in understanding the genetic patterns in human populations. 
 Throughout human evolution, different demographic events such as expansion, migration, splitting etc. 
 have occurred, affecting genetic diversity [@Ragsdale2019]. The population-genetics literature has
 several established demographic models inferred from genetic data [@Gutenkunst2009]. Some of these
-models have been compiled in \texttt{stdpopsim}, the standard library of population-genetic 
+models have been compiled in \texttt{stdpopsim}, a standard library of population-genetic 
 simulation models [@10.7554/eLife.54967]. At the time of writing, this library contains around 
 nine demographic models.  Among these, we select the **American Admixture** demographic 
-model of @Browning2018 because the family-based study motivating our work
-is in a North American population. We next explain details of the American admixture demographic model.
+model of @Browning2018 because the family-based study motivating our work is in a 
+North American population. 
 
 ## American admixture demographic model
 
@@ -88,57 +137,8 @@ Admixing started $12$ generations ago with the initial effective size of the adm
 admixed population originating from African ancestry, $\frac{1}{3}$ from European ancestry and $\frac{1}{2}$ 
 from Asian ancestry [@Browning2018]. 
   
-We use the inferred American-admixture demographic model in SLiM but defer discussion of the SLiM 
-simulation to section 3 of this document. In the next section, we discuss how to create the recombination map required for the SLiM simulation. 
-
-
-# Create recombination map for SLiM
-
-To simulate the genome-wide exon-only SNVs from SLiM, we need to supply a recombination map which reads the exon positions in chromosomes. We use the \texttt{create\_SlimMap()} function in the \texttt{SimRVSequence} [@Nieuwoudt2020] R package, as shown in the next code chunk.
-  
-```{r}
-library(SimRVSequences)
-
-# Load hg_exons data set in SimRVSequence package
-data("hg_exons")
-
-# Create recombination map for exon-only data using the hg_exons dataset
-s_map <- create_slimMap(exon_df = hg_exons)
-head(s_map)
-
-```
-
-We use the \texttt{hg\_exons} dataset in the \texttt{SimRVSequence} package. 
-The \texttt{hg\_exons} dataset presents the positions of each of the 22 human autosomes, based on 
-the hg38 reference genome from the UCSC Genome Browser [@Nieuwoudt2020].
-As shown above, the call to \texttt{create\_SlimMap()} returns a data frame with information about the genetic segments in each chromosome. As an example, the first row in the output above represents information about the genetic segment before the first exon on chromosome 1. 
-The second row represents information about the first exon on chromosome 1. The exon contains 354 base pairs and the recombination and mutation rates in this exon are $10^{-8}$ per site per generation. The other columns of the data frame are described in the \texttt{SimRVSequences} documentation. 
-The recombination rate between adjacent exons is set to the number of base pairs in the 
-intervening intronic segment (\texttt{segLength}) multiplied by $10^{-8}$ per base pair per generation (\texttt{recomb\_rate}). Further, the gap between two unlinked chromosomes is set to be a single base pair 
-and the recombination rate between them is set to be 0.5 per base pair per generation [@Harris2016]. 
-Since we are interested in exon-only data, the mutation rate outside exons is set to zero and mutation rates inside exons is set to $10^{-8}$ per base pair per generation [@Nieuwoudt2020].
-  
-From the \texttt{s_map()} output of \texttt{create\_SlimMap()}, we need three variables to create the recombination map for simulating exon-only data by SLiM: \texttt{recRate}, \texttt{mutRate} and \texttt{endPos}.
-We select these three variables and shift the \texttt{endPos} variable forward by one unit because SLiM reads arrays starting at position as 0 rather than 1. We save the resulting output as a text file (\texttt{Slim\_Map\_chr.txt}) to be used as a recombination map for SLiM.
-
-
-```{r}
-
-# Restrict output to the variables required by SLiM
-slimMap <- s_map[, c("recRate", "mutRate", "endPos")]
-
-# Shift endPos up by one unit
-slimMap$endPos <- slimMap$endPos - 1
-
-# Print first four rows of slimMap
-head(slimMap, n = 4)
-
-# Write the results to a text file
-write.table(slimMap, file ="Slim_Map_chr.txt")
-
-```
-
-The next section describes the SLiM model to simulate population-level exon-only SNV sequences.
+As described in the next section, we use SLiM together with the inferred American-admixture demographic 
+model to simulate population-level exon-only SNV sequences.
 
 # Simulate the demographic model in SLiM
   
