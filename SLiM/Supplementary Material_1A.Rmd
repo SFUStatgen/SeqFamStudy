@@ -33,7 +33,7 @@ knitr::opts_chunk$set(echo = TRUE)
 \newpage
 
 
-- This is the first RMarkdown document in a sequence describing how we simulated exome-sequencing data in pedigrees ascertained for three or more relatives affected with lymphoid cancer. The following flow chart illustrates the overall workflow for this project. 
+This is the first in a series of RMarkdown documents describing how we simulated exome-sequencing data in pedigrees ascertained to have three or more relatives affected with lymphoid cancer. The following flow chart illustrates the overall workflow for this project. 
 
 \begin{figure}[H]
 	\centering
@@ -42,23 +42,26 @@ knitr::opts_chunk$set(echo = TRUE)
 	\label{flow chart}
 \end{figure}
 
-- In this RMarkdown document, we focus on the part of the flowchart labelled as 1 (the green box).
+This document focuses on the part of the flowchart labelled as 1 (the green box).
 To start, we require single-nucleotide variant (SNV) sequences for pedigree founders. These founders are 
 assumed to be sampled from an American Admixed population, which we simulate with the evolutionary 
 simulation package \texttt{SLiM} [@Haller2019a]. In particular, we simulate genome-wide sequences
 of exons only, to mimic exome sequencing.
 
-- The outline of this document as follows. Section 1 explains the demographic model for the source
+The outline of this document as follows. Section 1 explains the demographic model for the source
 population of the pedigree founders. Section 2 explains how we create the \texttt{SLiM} recombination 
 map using the \texttt{create\_SlimMap()} function in the \texttt{SimRVSequence} R package [@Nieuwoudt2020]. 
 Section 3 discusses how we set the parameters in our SLiM model to simulate the exon-only SNV sequences. 
 
-- The final outcome of this RMarkdown document is the \texttt{SLiM\_output} sequences file called by our third RMarkdown document. This sequences file is used to generate the exome-sequencing data in the family-based 
-study of lymphoid cancer families. 
+The final outcome of this RMarkdown document is the file \texttt{SLiM\_output} containing SNV
+exon sequences from a simulated American Admixed population. In the third RMarkdown document 
+of this series, the population sequences file is sampled to get the founder sequences to drop 
+down the ascertained pedigrees. The final gene-dropping step generates
+the exome-sequencing data in the family-based study of lymphoid cancer families. 
 
 # Explain the demographic model
 
-- Demographic models play a major role in understanding the genetic patterns in human populations. 
+Demographic models play a major role in understanding the genetic patterns in human populations. 
 Throughout human evolution, different demographic events such as expansion, migration, splitting etc. 
 have occurred, affecting genetic diversity [@Ragsdale2019]. The population-genetics literature has
 several established demographic models inferred from genetic data [@Gutenkunst2009]. Some of these
@@ -70,7 +73,7 @@ is in a North American population. We next explain details of the American admix
 
 ## American admixture demographic model
 
-- In the American-Admixture model [@Browning2018], the pre-admixture model parameters are selected from the Out-of-Africa model of @Gravel2011. The following figure illustrates the Out-of-Africa model.
+In the American-Admixture model [@Browning2018], the pre-admixture model parameters are selected from the Out-of-Africa model of @Gravel2011. The following figure illustrates the Out-of-Africa model.
 
  \begin{figure}[H]
 \centering
@@ -80,19 +83,18 @@ is in a North American population. We next explain details of the American admix
 \end{figure}
 
 
-- In the figure, note that the parameter estimates have been rounded. The model has three populations representing Africa, Europe and Asia. The initial effective population size of Africa was $7310$ individuals which then increased to $14,474$ individuals $5920$ generations ago.  About $2040$ generations ago the out-of-Africa migration event occurred with a migrating effective population size of $1861$ individuals. Then migration occurred between Africa and out-of-Africa populations with a rate of $1.5 \times 10^{-4}$ per generation. About 920 generations ago, the out-of-Africa population split into two populations, Europe and Asia, with effective sizes of $1032$ and $554$ individuals, respectively. These two populations then grew at rates of $3.8 \times 10^{-3}$ per generation for Europe and $4.8 \times 10^{-3}$ per generation for Asia. Further, between these three populations, (Africa , Europe and Asia) migrations occurred. The migration rates per generation were $2.5 \times 10^{-5}$ between Africa and Europe, $7.8 \times 10^{-6}$ between Africa and Asia, and $3.11 \itme 10^{-5}$ between Europe and Asia [@Browning2018].
+In the figure, note that the parameter estimates have been rounded. The demographic model has three populations representing Africa, Europe and Asia. The initial effective population size of Africa was $7310$ individuals which then increased to $14,474$ individuals $5920$ generations ago.  About $2040$ generations ago the out-of-Africa migration event occurred with a migrating effective population size of $1861$ individuals. Then migration occurred between Africa and out-of-Africa populations with a rate of $1.5 \times 10^{-4}$ per generation. About 920 generations ago, the out-of-Africa population split into two populations, Europe and Asia, with effective sizes of $1032$ and $554$ individuals, respectively. These two populations then grew at rates of $3.8 \times 10^{-3}$ per generation for Europe and $4.8 \times 10^{-3}$ per generation for Asia. Further, between these three populations, (Africa , Europe and Asia) migrations occurred. The migration rates per generation were $2.5 \times 10^{-5}$ between Africa and Europe, $7.8 \times 10^{-6}$ between Africa and Asia, and $3.11 \itme 10^{-5}$ between Europe and Asia [@Browning2018].
 Admixing started $12$ generations ago with the initial effective size of the admixed population being $30,000$ individuals. The growth rate of the admixed population was $5\%$ per generation with $\frac{1}{6}$ of the 
 admixed population originating from African ancestry, $\frac{1}{3}$ from European ancestry and $\frac{1}{2}$ 
 from Asian ancestry [@Browning2018]. 
   
-- We use the inferred American-admixture demographic model and discuss how to set it up in SLiM in section 3.
-  
-- In the next section, we discuss how to create the recombination map required for the SLiM simulation. 
+We use the inferred American-admixture demographic model in SLiM but defer discussion of the SLiM 
+simulation to section 3 of this document. In the next section, we discuss how to create the recombination map required for the SLiM simulation. 
 
 
 # Create recombination map for SLiM
 
-- To simulate the genome-wide exon-only SNVs from SLiM, we need to supply a recombination map which reads the exon positions in chromosomes. We use the \texttt{create\_SlimMap()} function in the \texttt{SimRVSequence} [@Nieuwoudt2020] R package for this as shown in the next code chunk
+To simulate the genome-wide exon-only SNVs from SLiM, we need to supply a recombination map which reads the exon positions in chromosomes. We use the \texttt{create\_SlimMap()} function in the \texttt{SimRVSequence} [@Nieuwoudt2020] R package, as shown in the next code chunk.
   
 ```{r}
 library(SimRVSequences)
@@ -106,27 +108,19 @@ head(s_map)
 
 ```
 
-- We use the \texttt{hg\_exons} data set in the \texttt{SimRVSequence} package.
+We use the \texttt{hg\_exons} dataset in the \texttt{SimRVSequence} package. 
+The \texttt{hg\_exons} dataset presents the positions of each of the 22 human autosomes, based on 
+the hg38 reference genome from the UCSC Genome Browser [@Nieuwoudt2020].
+As shown above, the call to \texttt{create\_SlimMap()} returns a data frame with information about the genetic segments in each chromosome. As an example, the first row in the output above represents information about the genetic segment before the first exon on chromosome 1. 
+The second row represents information about the first exon on chromosome 1. The exon contains 354 base pairs and the recombination and mutation rates in this exon are $10^{-8}$ per site per generation. The other columns of the data frame are described in the \texttt{SimRVSequences} documentation. 
+The recombination rate between adjacent exons is set to the number of base pairs in the 
+intervening intronic segment (\texttt{segLength}) multiplied by $10^{-8}$ per base pair per generation (\texttt{recomb\_rate}). Further, the gap between two unlinked chromosomes is set to be a single base pair 
+and the recombination rate between them is set to be 0.5 per base pair per generation [@Harris2016]. 
+Since we are interested in exon-only data, the mutation rate outside exons is set to zero and mutation rates inside exons is set to $10^{-8}$ per base pair per generation [@Nieuwoudt2020].
   
-- The hg38 reference genome with the UCSC Genome Browser is used to collect the data in \texttt{hg\_exons} [@Nieuwoudt2020].
-  
-- The \texttt{hg\_exons} data set presents the positions of each of the 22 human autosomes.
-  
-- By supplying the \texttt{hg\_exons} data set to the \texttt{create\_SlimMap()} function, we get the recombination map required for the SLiM model.
-  
-- As shown in the above output of this function, it returns a data frame describing the information about the genetic segments in each chromosome. 
-  
-- As an example, the first row in the output above represents information about the genetic segment before the first exon on chromosome 1. 
+From the \texttt{s_map()} output of \texttt{create\_SlimMap()}, we need three variables to create the recombination map for simulating exon-only data by SLiM: \texttt{recRate}, \texttt{mutRate} and \texttt{endPos}.
+We select these three variables and shift the \texttt{endPos} variable forward by one unit because SLiM reads arrays starting at position as 0 rather than 1. We save the resulting output as a text file (\texttt{Slim\_Map\_chr.txt}) to be used as a recombination map for SLiM.
 
-- The second row represents information about the first exon on chromosome 1. The exon contains 354 base pairs and the recombination and mutation rates of this exon is $10^{-8}$ per site per generation. The other columns of the data frame are described in the \texttt{SimRVSequences} documentation. 
-  
-- The recombination between adjacent exons is set to the number of base pairs in the segment (\texttt{segLength}) multiplied by $10^{-8}$ per base pair per generation (\texttt{recomb\_rate}). Further, the gap between two unlinked chromosomes is defined as 1 base pair and the recombination rate between them is set to 0.5 per base pair per generation [@Harris2016]. 
-
-- Since we are interested in exon-only data, the mutation rate outside exons is set to zero and mutation rates inside exons is set to $10^{-8}$ per base pair per generation [@Nieuwoudt2020].
-  
-- From the output of \texttt{create\_SlimMap()}, we need three variables to create the recombination map for simulating exon-only data by SLiM: \texttt{recRate},\texttt{mutRate} and \texttt{endPos}.
-  
-- We select these three variables from the above output to supply the recombination map to SLiM. Also, it is important to shift the \texttt{endPos} variable forward 1 unit, because the \texttt{Eidos} scripting language in SLiM, reads arrays starting position as 0 instead 1.
 
 ```{r}
 
@@ -144,12 +138,7 @@ write.table(slimMap, file ="Slim_Map_chr.txt")
 
 ```
 
-
-- As shown in the above R code chunk, we select only the three variables which are required for the recombination map in the SLiM simulation.
-  
-- We save the resulting output as a text file (\texttt{Slim\_Map\_chr.txt}) which we can use as our recombination map to read in SLiM.
-  
-- In the next section, we describe our SLiM model which we use to simulate exon-only SNV data for our population of unrelated pedigree founders.
+The next section describes the SLiM model to simulate population-level exon-only SNV sequences.
 
 # Simulate the demographic model in SLiM
   
