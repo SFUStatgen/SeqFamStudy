@@ -374,7 +374,7 @@ the \texttt{SLiM\_output.txt} output in our third RMarkdown document.
 ## Summary Statistics
 
 We use R and the output in \texttt{SLiM\_output.txt} to obtain summary statistics for 
-the American admixed population. 
+the American admixed population. We start by reading \texttt{SLiM\_output.txt} into R.
 
 ```{r}
 library(SimRVSequences)
@@ -387,7 +387,7 @@ exDat <- readLines("D:/SFU_Vault/SLiM_Output/Output_Full.txt")
 
 ```
 
-The file size of \texttt{SLiM\_output.txt} is approximately 6 GB. The file 
+The file size of \texttt{SLiM\_output.txt} is approximately 6 GB and 
 takes approximately 1 minute to load into R on a Windows OS with an i7-8550U @ 1.8GHz,16GB of RAM.
 
 ```{r}
@@ -407,7 +407,7 @@ popCount/2
 The number of individuals in the simulated American admixed population is 53,876.
 
 ```{r}
-# Extract mutation data from sLiM's Mutation output
+# Extract mutation data from SLiM's Mutation output
 # only retaining the tempID, type, position,
 # selection coefficient and count of each mutation
 MutOut <- do.call(rbind, strsplit(exDat[(MutHead + 1):(GenHead - 1)], split = " ", fixed = TRUE))
@@ -422,9 +422,8 @@ nrow(MutData)
 
 ```
 
-- There are 862,243 number of mutations are currently segregating in the admixed population. 
-
-- Then we examine among these 862,243 mutations the percentage of allele frequency less than 1% in the population. 
+The number of mutations segregating in the American admixed population is 862,243. We next examine what 
+percentage of these have derived allele frequency less than 1% in the population. 
 
 ```{r}
 # Add 1 to temp ID so that we can easily associate mutations to columns.
@@ -445,32 +444,34 @@ af_less_per
 
 ```
 
-- Among these mutations, approximately 94% have frequencies less than 1%.
+Among the 862,243 mutations segregating in the simulated American-admixed population, approximately 94% 
+have derived allele frequencies less than 1%. This is slightly less than the approximately 
+97% of single-nucleotide variants observed to have alternate allele
+frequences less than 1% in the TopMed study of the American population [@Taliun2021]. 
 
-- We compare these results with the TopMed study [@Taliun2021]. The TopMed study has newly released empirical results for the American population and suggests that the majority of variants have alternate allele frequencies of less than 1%. According to @Taliun2021, approximately 97% of variants in the TopMed Study are rare (i.e. have allele frequencies less than 1%). 
-
-- In our American admixed population also, we find that approximately 94% of the mutations are rare.
-
-- We use the following code chuck to check the singleton percentage in the American admixed population.
+Next, we check the percentage of mutations that are singletons 
+in the simulated American admixed population.
 
 ```{r}
 
 # Use the prevalence (the number of times that the mutation occurs in any genome) 
 # column in MutData dataframe to calculate the singleton percentage
-singelton <- MutData %>% 
+singleton <- MutData %>% 
   count(count) %>%
   mutate(percentage = n/nrow(MutData))
 
-colnames(singelton) <- c("number_of_allele", "count", "proportion")
-head(singelton)
+colnames(singleton) <- c("number_of_allele", "count", "proportion")
+head(singleton)
 
 ```
 
-- Among 862,243 mutations, 19% of them are singletons. The following figure illustrates the allele frequency spectrum.
+Among the 862,243 mutations, only 19% are singletons. By contrast,
+in the TopMed study, about half the variants are singletons [@Taliun2021].
+The following figure illustrates the allele frequency spectrum.
 
 ```{r, warning=FALSE}
 # Plot the first 50 sites in the allele frequency spectrum
-ggplot(singelton) + 
+ggplot(singleton) + 
   geom_bar(mapping = aes(x = as.factor(number_of_allele), 
                                            y = proportion), 
                              stat="identity",
@@ -482,15 +483,18 @@ ggplot(singelton) +
 
 ```
 
-- In the TopMed study, about half of the variants are singletons [@Taliun2021].
-
-- The reason for the discrepancy between our results and TopMed is our lack of source populations. In our SLiM model we have only three source populations and we collect SNV data from the American admixed population only. But in the TopMed study, they consider the entire American population which consists of many more source populations. 
-
-- To check this, we combine data from all four populations in our SLiM model and check if the singleton percentage is increased. Due to the high computational cost we only simulate data from chromosome 8 and 9. 
-
-- Combining all four populations, around 26% of variants are singletons. 
-
-- The supplementary material 1-B discusses the commands to generate and summarize all the source populations and check the proportions of singletons after combining the four populations. 
+We believe that our simulated American-admixed population has fewer rare variants and singletons than
+the TopMed population because it lacks TopMed's variety of source populations.
+Our SLiM simulation has only three source populations and we collect mutation data from only 
+the American-admixed population. By contrast, the TopMed study considers the entire 
+American population consisting of many more source populations. 
+To investigate this hypothesis, we combined data from all four populations in our SLiM 
+simulation to see if the singleton percentage increased. Due to the high computational 
+cost, we simulated mutations for chromosomes 8 and 9 only. 
+Combining all four populations, the percentage of singletons increased from 19 to 26% of mutations. 
+An additional RMarkdown document, for supplementary material 1-B, discusses the commands to 
+generate and summarize all the source populations and check the proportions of singletons, 
+after combining the four populations. 
 
 \newpage
 
