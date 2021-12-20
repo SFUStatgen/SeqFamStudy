@@ -33,7 +33,7 @@ knitr::opts_chunk$set(echo = TRUE)
 \newpage
 
 
-- This is the first RMarkdown document describing how we simulated exome-sequencing data in pedigrees ascertained for three or more relatives affected with lymphoid cancer. The following flow chart illustrates the overall workflow for this project. 
+- This is the first RMarkdown document in a sequence describing how we simulated exome-sequencing data in pedigrees ascertained for three or more relatives affected with lymphoid cancer. The following flow chart illustrates the overall workflow for this project. 
 
 \begin{figure}[H]
 	\centering
@@ -60,64 +60,40 @@ study of lymphoid cancer families.
 
 - Demographic models play a major role in understanding the genetic patterns in human populations. 
 Throughout human evolution, different demographic events such as expansion, migration, splitting etc. 
-have occurred, affecting the genetic diversity [@Ragsdale2019]. The population-genetics literature has
-several established demographic models inferred from genetic data [@Gutenkunst2009]. 
-
-- We consider a demographic model in \texttt{stdpopsim}, the standard library of population-genetic 
-simulation models [@10.7554/eLife.54967]. This library has around nine demographic models.  
-
-- Among these models, we select the **American Admixture** demographic model of @Browning2018 because of our interest in the Northern American population. 
-
-- We next explain details of the American admixture demographic model.
+have occurred, affecting genetic diversity [@Ragsdale2019]. The population-genetics literature has
+several established demographic models inferred from genetic data [@Gutenkunst2009]. Some of these
+models have been compiled in \texttt{stdpopsim}, the standard library of population-genetic 
+simulation models [@10.7554/eLife.54967]. At the time of writing, this library contains around 
+nine demographic models.  Among these, we select the **American Admixture** demographic 
+model of @Browning2018 because the family-based study motivating our work
+is in a North American population. We next explain details of the American admixture demographic model.
 
 ## American admixture demographic model
 
-
-- In the American Admixture model [@Browning2018], the pre-admixture model parameters are selected from the Out-of-Africa model of @Gravel2011 .
-
-- The following figure illustrates the Out-of-Africa model which is adopted from @Gravel2011.
+- In the American-Admixture model [@Browning2018], the pre-admixture model parameters are selected from the Out-of-Africa model of @Gravel2011. The following figure illustrates the Out-of-Africa model.
 
  \begin{figure}[H]
 \centering
 \includegraphics[height = 0.9\textwidth , width = 1 \textwidth ]{Out of Africa model.jpg}
-	\caption{The representation of the inferred Out of Africa model.}
+	\caption{The inferred Out-of-Africa demographic model.}
 	\label{outof africa model}
 \end{figure}
 
 
-- Figure \ref{outof africa model} is a representation of the inferred Out-of-Africa model [@Gravel2011]. Note that the parameter estimates in the figure \ref{outof africa model} are not the exact values but rather rounded values.
-
-- In the Out-of-Africa  model, there are three populations; Africa, Europe and Asia.
-
-- The initial population size of Africa was $7310$ individuals which then increased to $14,474$ individuals $5920$ generations ago. 
+- In the figure, note that the parameter estimates have been rounded. The model has three populations representing Africa, Europe and Asia. The initial effective population size of Africa was $7310$ individuals which then increased to $14,474$ individuals $5920$ generations ago.  About $2040$ generations ago the out-of-Africa migration event occurred with a migrating effective population size of $1861$ individuals. Then migration occurred between Africa and out-of-Africa populations with a rate of $1.5 \times 10^{-4}$ per generation. About 920 generations ago, the out-of-Africa population split into two populations, Europe and Asia, with effective sizes of $1032$ and $554$ individuals, respectively. These two populations then grew at rates of $3.8 \times 10^{-3}$ per generation for Europe and $4.8 \times 10^{-3}$ per generation for Asia. Further, between these three populations, (Africa , Europe and Asia) migrations occurred. The migration rates per generation were $2.5 \times 10^{-5}$ between Africa and Europe, $7.8 \times 10^{-6}$ between Africa and Asia, and $3.11 \itme 10^{-5}$ between Europe and Asia [@Browning2018].
+Admixing started $12$ generations ago with the initial effective size of the admixed population being $30,000$ individuals. The growth rate of the admixed population was $5\%$ per generation with $\frac{1}{6}$ of the 
+admixed population originating from African ancestry, $\frac{1}{3}$ from European ancestry and $\frac{1}{2}$ 
+from Asian ancestry [@Browning2018]. 
   
-- $2040$ generations ago the out-of Africa migration event occurred with a migrating population size of $1861$ individuals.
+- We use the inferred American-admixture demographic model and discuss how to set it up in SLiM in section 3.
   
-- Then migration occurred between Africa and out-of-Africa with a rate of $1.5*10^{-4}$ per generation.
-  
-- 920 generations ago, the out-of-Africa population split into two populations, Europe and Asia with sizes of $1032$ and $554$ individuals, respectively.
-  
-- Then these two populations started to grow with the rates of $3.8 * 10^{-3}$ per generation for Europe and $4.8 * 10^{-3}$ per generation for Asia. Further, between these three populations, (Africa , Europe and Asia) migrations occurred.
-  
-- The migration rates per generation were $2.5 * 10^{-5}$ between Africa and Europe, $7.8 * 10^{-6}$ between Africa and Asia, and $3.11 * 10^{-5}$ between Europe and Asia [@Browning2018].
-  
-- The admixing is started $12$ generations ago with the $30,000$ individuals initial size of the admixed population. 
-  
-- The growth rate of the admixed population is $5\%$ and $\frac{1}{6}$ of the population of African ancestry, $\frac{1}{3}$ of European ancestry and $\frac{1}{2}$ of Asian ancestry [@Browning2018]. 
-  
-- We use the inferred American admixture demographic model and discuss how to set it up in SLiM in section 3.
-  
-- Our next aim is to create the recombination map which is required for the SLiM simulation. The next section explains how we create the recombination map.
+- In the next section, we discuss how to create the recombination map required for the SLiM simulation. 
 
 
 # Create recombination map for SLiM
 
-- To simulate the genome-wide exon-only SNVs from SLiM, we need to supply the recombination map which reads the exon positions in chromosomes. 
+- To simulate the genome-wide exon-only SNVs from SLiM, we need to supply a recombination map which reads the exon positions in chromosomes. We use the \texttt{create\_SlimMap()} function in the \texttt{SimRVSequence} [@Nieuwoudt2020] R package for this as shown in the next code chunk
   
-- For this, the \texttt{create\_SlimMap()} function in the \texttt{SimRVSequence} [@Nieuwoudt2020] R package helps us to create the required recombination map.
-  
-- The following code chunk explains how we create the required recombination map for SLiM.
-
 ```{r}
 library(SimRVSequences)
 
