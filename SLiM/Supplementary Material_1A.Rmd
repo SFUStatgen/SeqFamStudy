@@ -143,7 +143,7 @@ model to simulate population-level exon-only SNV sequences.
 # Simulate the demographic model in SLiM
    
 The following SLiM script generates genome-wide exon-only SNV sequences for a population 
-under the American-Admixture demographic model. The script is a \texttt{.slim} file
+under the American-Admixture demographic model. The script is a \texttt{.slim} file, which we have
 embedded in an R code chunk (that is not run). The original \texttt{SLiM\_American\_Admixture.slim} 
 file can be found on our GitHub page at https://github.com/SFUStatgen/SeqFamStudy/.
 
@@ -328,21 +328,14 @@ the sub-population . Then "A" represents autosome, the type of the genome. This 
 
 ## Simulation on Compute Canada Cluster
 
-- This SLiM simulation is highly memory intensive and not suitable for most personal computers. 
-
-- We therefore use the Compute Canada cluster (http://www.computecanada.ca) as described next. 
-
-
-- First, we need to install the SLiM software. The way we install the software is exactly the same as  how we install the software on our own computer. Use the SLiM manual guidelines for this task. 
-
-- After we install SLiM, we use a job scheduler in the cluster to run our jobs.
-
-- In the Compute Canada Cluster we use the **Slurm Workload Manager** as the job scheduler. 
-
-- Slurm helps to allocate resources and time, and provides methods to execute our work.
-
-- To run the SLiM script we use a Slurm script as follows. 
-
+This SLiM simulation is highly memory intensive and not suitable for most personal computers. 
+We therefore use the Compute Canada cluster (http://www.computecanada.ca) as described next. 
+First, we need to install the SLiM software. The way we install the software is exactly the same as  
+how we install the software on our own computer. Use the SLiM manual guidelines for this task. 
+After we install SLiM, we use a job scheduler on the compute cluster to run our jobs.
+On the Compute Canada Cluster, the job scheduler is the **Slurm Workload Manager** . 
+Slurm helps to allocate resources and time, and provides methods to execute our work.
+To run the SLiM script we write the following Slurm script, \texttt{job_serial.sh}: 
 
 ```{bash, eval = FALSE}
 #!/bin/bash
@@ -357,44 +350,31 @@ slim SLiM_American_Admixture.slim
 
 ```
 
-- Let's understand each line of the above batch script file. 
+The content of \texttt{job_serial.sh} is described as follows.
+- \texttt{\#SBATCH--account=def-jgraham} specifies the account name. In this example, the account name is "def-jgraham".
+- \texttt{\#SBATCH--ntasks=1} defines the number of processors. We request 1 processor to run the program. 
+- \texttt{\#SBATCH--time=7-05:05:00} specifies the time limit for the job. To avoid the simulation being stopped prematurely for running over the allocated time, we try to err on the side of allocating too much. 
+- \texttt{\#SBATCH--mem=640000M} specifies memory required for our simulation. We request 64GB. 
+Next, the executable commands are aligned in the script file:
+- \texttt{module load StdEnv/2020 gcc/9.3.0 slim/3.4.0} loads the SLiM version we installed on the Cluster.
+- \texttt{slim SLiM\_American\_Admixture.slim} calls SLiM to run the SLiM script, \texttt{SLiM\_American\_Admixture.slim}. 
 
-- \texttt{\#SBATCH--account=def-jgraham} - specifies the account name. In this example, the account name is "def-jgraham".
-
-- \texttt{\#SBATCH--ntasks=1} - defines the number of processors. We request 1 processor to run the program. 
-
-- \texttt{\#SBATCH--time=7-05:05:00}- specifies the time limit for the job. Usually, we allocate a time which is more than the expected time to run the program. This is because, if our simulation takes a longer time than the allocated time, the simulation will stop without executing when the given time limit is achieved.
-
-- \texttt{\#SBATCH--mem=640000M} - specifies memory that we require to run our simulation. We request 64GB. 
-
--  Next, the executable commands are aligned in the script file. They are:
-
-- \texttt{module load StdEnv/2020 gcc/9.3.0 slim/3.4.0} - loads the SLiM version  which we installed.
-
-- \texttt{slim SLiM\_American\_Admixture.slim}- calls for SLiM to run the SLiM script file: \texttt{SLiM\_American\_Admixture.slim}. This is the final command in the slurm script file.
-
-
-- Then we use \texttt{sbatch} command to submit above slurm script file to run in the cluster. We type the \texttt{sbatch} command in our log in node as follows. 
-
-
-
+To submit the slurm script to the cluster, we type the following in our log-in node:
 ```{bash, eval = FALSE}
 [epasiedn@gra-login2 American_Admixture]$ sbatch job_serial.sh
 
 ```
 
-
-- This simulation took approximately 3 days to complete. 
-
-- In our job script we allocate 64GB to run the simulation. Out of this 64GB, the job utilized 43.61GB. 
-
-- The output of this SLiM model is saved as \texttt{SLiM\_output.txt} and we use this file as one of the inputs for the third phase of our work flow.
-
-- We will examine the \texttt{SLiM\_output.txt} output in our third R-markdown document.
+This SLiM simulation took approximately 3 days to complete on the Compute Canada cluster. 
+The SLuRM script allocated 64GB to run the simulation. Out of this 64GB, the job utilized 43.61GB. 
+The output of this SLiM simulation is saved as \texttt{SLiM\_output.txt} and we use this 
+file as one of the inputs for the third step of our workflow. We will return to
+the \texttt{SLiM\_output.txt} output in our third RMarkdown document.
 
 ## Summary Statistics
 
-- We obtain summary statistics of the American admixed population by using the SLiM output. 
+We use R and the output in \texttt{SLiM\_output.txt} to obtain summary statistics for 
+the American admixed population. 
 
 ```{r}
 library(SimRVSequences)
@@ -405,12 +385,10 @@ library(data.table)
 # Read the SLiM output text file to R
 exDat <- readLines("D:/SFU_Vault/SLiM_Output/Output_Full.txt")
 
-
 ```
 
-- The \texttt{SLiM\_output.txt} file size is approximately 6 GB.
-
-- We read the \texttt{SLiM\_output.txt} file to R and it takes approximately 1 minute to load to R on a Windows OS with an i7-8550U @ 1.8GHz,16GB of RAM.
+The file size of \texttt{SLiM\_output.txt} is approximately 6 GB. The file 
+takes approximately 1 minute to load into R on a Windows OS with an i7-8550U @ 1.8GHz,16GB of RAM.
 
 ```{r}
 # Read the mutations and genomic sections in the output
@@ -426,7 +404,7 @@ popCount/2
 
 ```
 
-- The size of the simulated American admixed population is 53,876.
+The number of individuals in the simulated American admixed population is 53,876.
 
 ```{r}
 # Extract mutation data from sLiM's Mutation output
