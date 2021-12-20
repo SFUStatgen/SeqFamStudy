@@ -122,12 +122,12 @@ North American population.
 
 ## American admixture demographic model
 
-In the American-Admixture model [@Browning2018], the pre-admixture model parameters are selected from the Out-of-Africa model of @Gravel2011. The following figure illustrates the Out-of-Africa model.
+In the American-Admixture model [@Browning2018], the pre-admixture model parameters are selected from the Out-of-Africa model of @Gravel2011 illustrated below.
 
  \begin{figure}[H]
 \centering
 \includegraphics[height = 0.9\textwidth , width = 1 \textwidth ]{Out of Africa model.jpg}
-	\caption{The inferred Out-of-Africa demographic model.}
+	\caption{The inferred Out-of-Africa demographic model [@Gravel2011].}
 	\label{outof africa model}
 \end{figure}
 
@@ -288,39 +288,16 @@ The second genomic element type "g2" is defined as using mutation type "m2" for 
 Then we create the alternating start and end positions of the "g1" and "g2" genomic elements along the exome.
 Finally, we initialize the two genomic elements "g1" and "g2" with \texttt{initializeGenomicElement()}, supplying their starting and ending positions along the exome. 
 
-- After the \texttt{initialize()} callbacks end, we run the first generation of our simulation. 
-
-- We use the Out-of-Africa model described in the SLiM manual [@Haller2019a].  Note that the SLiM manual uses the exact parameter estimates from the original model described in @Gravel2011.
-
-- In the first generation the first sub population is created with the inferred initial size and we label it as "p1". 
-
-- We use the function \texttt{sim.addSubpop()} to add "p1", the new sub population, by giving its initial size.
-
-- @Haller2019a start the model at 79024 generations back (approximately 1976 kya); this is generation 0 in the model.
-
-- The model then takes 10*\texttt{African ancestral population size} generations as the neutral burn-in time [@Haller2019a]. An expansion of the African population occurs at 73105 generations. 
-
-- Therefore, at 73105 generations, we change the sub-population size of "p1" (Africa) from $\sim7310$ to $\sim14474$. 
-
-- After this event, at generation 76968, the African sub-population splits into the Eurasian ancestral sub-population.  
-
-- We create another sub-population, "p2", to represent the Eurasian ancestral sub-population and migration is started between these two populations [@Haller2019a].
-
-
-- \texttt{p1.setMigrationRates} sets the migration rate from the African to the Eurasian ancestral sub-population, while \texttt{p2.setMigrationRates} sets the migration rate from the Eurasian ancestral to the African sub-population. 
-
-- Then at 78084 generations, the "p2" Eurasian sub-population splits into European and Asian sub-populations. Therefore, we create a new sub-population,"p3", to represent the Asian sub-population. The Eurasian ancestral sub-population becomes the European sub-population.
-
-
-- After that, we set the migration rates between three sub-populations accordingly.
-
-- Then we set up exponential growth in European (p2) and Asian (p3) sub-populations starting from 78084 generations to 79012 generations. 
-
-- At 79012 generations, we create our admixed sub-population with an initial size 30000 and set the migration rates between the admixed and the other three sub-populations as given in @Browning2018. After we create the admixed sub-population, we stop all migrations.
-
-- Then between 79012 to 79024 generations we set exponential growth of this admixed sub-population with a rate of 5% (individuals per generation). 
-
-- Finally in generation 79024 we terminate our SLiM simulation and collect our output from the model.
+After the \texttt{initialize()} callbacks end, we run our simulation under the Out-of-Africa model described in the SLiM manual [@Haller2019a], with exact parameter estimates from @Gravel2011.
+In the first generation, the African ancestral population, labelled "p1", is created with the function \texttt{sim.addSubpop()} and initial effective population size of 7310 individuals. @Haller2019a start the model at 79024 generations back from the present (gbp) and set it to be generation 0 in the forwards simulation. The simulation then takes 10*\texttt{African ancestral population size} generations as the neutral burn-in time [@Haller2019a]. At generation 73105 in the simulation (5919 gbp), the ancestral population, "p1", increases in effective size from $\sim7310$ to $\sim14474$ individuals. Subsequently, at generation 76968 of the simulation (2056 gbp), the African ancestral population, "p1",  splits into the Eurasian ancestral sub-population, "p2", and migration starts between these two subpopulations.  The command \texttt{p1.setMigrationRates} sets the migration rate from the African to the Eurasian ancestral sub-population, while \texttt{p2.setMigrationRates} sets the migration rate from the Eurasian ancestral to the African sub-population. Then at 78084 generations in the simulation (940 gbp), the "p2" Eurasian sub-population splits into European and Asian sub-populations. We create a new sub-population,"p3", to represent the Asian sub-population and let the Eurasian ancestral sub-population become the European sub-population.
+After the Eurasian ancestral population becomes the Asian and European sub-populations, we allow for 
+migration between the African, Asian and European sub-populations, setting the migration rates according to 
+the literature. Then, starting from 78084 generations in the simulation (940 gbp), we specify exponential growth in European (p2) and Asian (p3) sub-populations, until 79012 generations in the simulation (12 gbp). 
+At 79012 generations (12 gbp), we create the American admixed sub-population with an initial effective population 
+size of 30000 individuals and set the migration rates between the admixed and the other three sub-populations 
+according to @Browning2018. Once the admixed sub-population is created, migration into and out of it is stopped 
+and it grows exponentially at rate 5% per generation until the present at 79024 generations into the simulation.
+Finally in generation 79024 of the simulation (the present) we terminate our SLiM simulation and collect the output.
 
 - Since our main study is based on the Northern American population, we only consider the American admixed sub-population as the output. 
 
