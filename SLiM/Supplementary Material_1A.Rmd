@@ -290,13 +290,13 @@ Finally, we initialize the two genomic elements "g1" and "g2" with \texttt{initi
 
 - After the \texttt{initialize()} callbacks end, we run the first generation of our simulation. 
 
-- We use the Out-of-Africa model of @Gravel2011 that is described in the SLiM manual [@Haller2019a].  Note that the SLiM manual uses the exact parameter estimates from the original model described in @Gravel2011.
+- We use the Out-of-Africa model described in the SLiM manual [@Haller2019a].  Note that the SLiM manual uses the exact parameter estimates from the original model described in @Gravel2011.
 
 - In the first generation the first sub population is created with the inferred initial size and we label it as "p1". 
 
 - We use the function \texttt{sim.addSubpop()} to add "p1", the new sub population, by giving its initial size.
 
-- @Haller2019a start the model at 79024 generations back (approximately 1.98 million years); this is generation 0 in the model.
+- @Haller2019a start the model at 79024 generations back (approximately 1976 kya); this is generation 0 in the model.
 
 - The model then takes 10*\texttt{African ancestral population size} generations as the neutral burn-in time [@Haller2019a]. An expansion of the African population occurs at 73105 generations. 
 
