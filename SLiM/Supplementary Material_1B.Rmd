@@ -145,7 +145,8 @@ sim.outputFull("~/output_all_chr8&9.txt");
 ```
 
 
-- We read the file \texttt{output\_all\_chr8\&9.txt} into R and obtain the summary statistics that were described in the  Supplementary Material 1-A document.
+We read \texttt{output\_all\_chr8\&9.txt} into R and obtain the number of individuals in each population
+and in all populations combined. 
 
 ```{r}
 
@@ -177,7 +178,7 @@ popCount <- popCount_1 + popCount_2 + popCount_3 + popCount_4
 
 ```
 
-- The following table illustrates the population size of each population.
+The following table of population sizes summarizes the output of the above commands.
 
  \begin{table}[h]
 \centering
@@ -209,7 +210,7 @@ nrow(MutData)
 
 ```
 
-- There are 142,549 number of mutations are currently segregating.
+On chromosomes 8 and 9, the number of mutations segregating in all four populations is 142,549.
 
 ```{r}
 # Add 1 to temp ID so that we can easily associate mutations to columns.
@@ -218,11 +219,11 @@ MutData$tempID <- MutData$tempID + 1
 # First position in SLiM is 0, not 1
 MutData$position <- MutData$position + 1
 
-# Calculate the population derived allele frequency.
-# Divide the allele count by the population size. 
+# Calculate the population derived-allele frequency.
+# Divide the derived-allele count by the population size. 
 MutData$afreq <- MutData$count/(popCount)
 
-# Get the percentage of SNVs whose allele frequency < 0.01
+# Get the percentage of SNVs whose derived-allele frequency is < 0.01
 af_less <- which(MutData$afreq < 0.01)
 af_less_per <- length(af_less)/ nrow(MutData)
 
@@ -230,24 +231,24 @@ af_less_per
 
 ```
 
-- Among all the mutations, approximately 96% have frequencies less than 1%.
+Among the 142,549 mutations on chromosomes 8 and 9, approximately 96% have frequencies less than 1%.
 
-- In Supplementary Material 1-A, we discuss how 26% of the variants in the combined populations were singletons. The following commands are used to calculate this percentage.
+In Supplementary Material 1-A, we discuss how 26% of the variants in the combined populations were singletons. The following commands are used to calculate this percentage.
 
 ```{r}
 # Use the prevalence (the number of times that the mutation occurs in any genome) 
 # column in MutData dataframe to calculate the singleton percentage
-singelton <- MutData %>% count(count) %>% mutate(percentage = n/nrow(MutData))
-colnames(singelton) <- c("number_of_allele", "count", "proportion")
-head(singelton)
+singleton <- MutData %>% count(count) %>% mutate(percentage = n/nrow(MutData))
+colnames(singleton) <- c("number_of_allele", "count", "proportion")
+head(singleton)
 
 ```
 
-- The following figure illustrates the frequency spectrum.
+The following figure illustrates the derived-allele frequency spectrum for chromosomes 8 and 9.
 
 ```{r, warning=FALSE}
-# Plot the first 50 sites in the allele frequency spectrum
-ggplot(singelton) + 
+# Plot derived-allele counts of up to 50 in the allele-frequency spectrum
+ggplot(singleton) + 
   geom_bar(mapping = aes(x = as.factor(number_of_allele), 
                                            y = proportion), 
                              stat="identity",
