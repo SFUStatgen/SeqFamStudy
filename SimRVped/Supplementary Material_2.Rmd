@@ -1,5 +1,5 @@
 ---
-title: 'Supplementary Material 2 : Simulate ascertained pedigrees'
+title: 'Supplementary Material 2: Simulate ascertained pedigrees'
 author: "Nirodha Epasinghege Dona, Jinko Graham"
 date: "`r Sys.Date()`"
 bibliography: MyCollection.bib
@@ -39,7 +39,7 @@ knitr::opts_chunk$set(echo = TRUE, cache=FALSE, messages=FALSE, warning=FALSE,fi
 \begin{figure}[H]
 	\centering
 	\includegraphics[height = 1 \textwidth , width = 2 \textwidth]{Flow Chart.pdf}
-	\caption{The flow chart which represents the entire work flow of simulating the sequence data for the pedigrees.}
+	\caption{Workflow for simulating the exome-sequencing data for ascertained pedigrees.} 
 	\label{flow chart}
 \end{figure}
 
