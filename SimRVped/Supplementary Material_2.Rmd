@@ -39,7 +39,7 @@ knitr::opts_chunk$set(echo = TRUE, cache=FALSE, messages=FALSE, warning=FALSE,fi
 \begin{figure}[H]
 	\centering
 	\includegraphics[height = 1 \textwidth , width = 2 \textwidth]{Flow Chart.pdf}
-	\caption{Workflow for simulating the exome-sequencing data for ascertained pedigrees.} 
+	\caption{Work-flow for simulating the exome-sequencing data for ascertained pedigrees.} 
 	\label{flow chart}
 \end{figure}
 
