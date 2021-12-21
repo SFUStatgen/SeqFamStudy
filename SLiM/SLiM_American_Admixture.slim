@@ -1,6 +1,6 @@
 initialize() {
 
-// Read recombination map cretated by SimRVSequence R package
+// Read recombination map created by SimRVSequence R package
 
 lines = readFile("~/Slim_Map_chr.txt");
 Rrates = NULL;
@@ -68,7 +68,7 @@ p2.setSubpopulationSize(asInteger(p2_size));
 p3.setSubpopulationSize(asInteger(p3_size));
 }
 
-// Create the ADMIX population
+// Create the admixed population
 79012 early(){
 sim.addSubpop("p4", 30000); //This new subpopulation is created with 30000 new empty individuals
 p4.setMigrationRates(c(p1, p2, p3), c(0.1666667, 0.3333333, 0.5));
