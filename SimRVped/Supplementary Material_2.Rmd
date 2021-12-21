@@ -59,8 +59,8 @@ using `simRV_ped()`, the core function of the \texttt{SimRVPedigree} package.
 The \texttt{sim\_RVped()} function generates a **single** pedigree
 by simulating all life events of the
 seed founder and his/her descendants, as described by @Nieuwoudt2018. 
-Starting at the birth of an individual, the waiting times of the 
-individual's next three life events -- disease onset, reproduction and death -- are generated. 
+Starting at the birth of an individual, the waiting times of the possible next life events of
+the individual -- disease onset, reproduction and death -- are generated. 
 The event with the minimum waiting time is selected as the individual's next life event. The waiting time 
 is added to the current age of the individual and the corresponding life event is recorded.
 These steps are repeated until the individual dies or the study reaches its stop year.
@@ -85,11 +85,11 @@ relative to those who carry no copies of a cRV. We use 50 as the GRR.
 
 \item \texttt{\textbf{FamID}-} the family identity number of the simulated pedigree. We assign a vector that contains values 1 to 150 since we need to generate 150 pedigrees. 
 
-\item \texttt{\textbf{founder\_byears}-} the period of the birth year of the seed founder is set to the (1880, 1920) interval.
+\item \texttt{\textbf{founder\_byears}-} the period for the possible birth year of a seed founder is set to be (1880, 1920).
 
 \item  \texttt{\textbf{stop\_year}-} 2020 is set to the year in which we stop collecting data.
 
-\item  \texttt{\textbf{carrier\_prob}-} the probability that an individual in the general population carries a cRV is 0.001.
+\item  \texttt{\textbf{carrier\_prob}-} the probability that an individual in the general population carries a cRV is set to 0.001.
 
 \item  \texttt{\textbf{RV\_founder}-} is set to \texttt{FALSE}, i.e., the seed founder carries a cRV with probability equal to the carrier probability (0.001) of a cRV in the population.
 
@@ -98,11 +98,12 @@ proband (e.g. fourth degree = great aunt) are recalled with
 probability 1, all fifth-degree relatives (e.g. first cousin once removed) of the proband are recalled with
 probability 0.75, and so forth.
 
-\item \texttt{\textbf{first\_diagnosis}-} the first year that the reliable diagnoses can be made regarding the disease-affection status is set as 1940.
+\item \texttt{\textbf{first\_diagnosis}-} the earliest year after which reliable diagnoses can be made regarding the disease-affection status is set as 1940.
 
 \end{itemize} 
 
-- We set the above values for the arguments in the \texttt{sim\_RVped()} function and use the Compute Canada cluster for the simulation. The reason for this is the simulation time is comparatively high and it varies pedigree to pedigree. 
+GOT HERE
+We set the above values for the arguments in the \texttt{sim\_RVped()} function and use the Compute Canada cluster for the simulation. The reason for using the cluster is that the simulation time is comparatively high and it varies pedigree to pedigree. 
 
 -  The next sub-section explains the Compute Canada cluster simulation. 
 
