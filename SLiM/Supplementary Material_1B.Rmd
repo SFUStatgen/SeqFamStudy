@@ -1,5 +1,5 @@
 ---
-title: 'Supplementary Material 1-B : Combining Source Populations with the American Admixed Population in SLiM'
+title: 'Supplementary Material 1-B: Combining Source Populations with the American-Admixed Population in SLiM'
 author: "Nirodha Epasinghege Dona, Jinko Graham"
 date: "`r Sys.Date()`"
 bibliography: MyCollection.bib
@@ -27,20 +27,21 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-# Commands for calculating summary statistics in the combined populations
 
-- In Supplementary Material 1-A, we discuss the SLiM American admixed demographic model. However, in that we output only the American admixed population data because it is our main interest.
-
-- In this document, we discuss the SLiM model which outputs the data for all four populations. We also show the commands to calculate summary statistics.
-
-- The following is the SLiM script that we use to simulate all four populations in the American admixture demographic model. Note: We only simulate chromosome 8 and 9 exome data due to high computational cost.
-
+Supplementary Material 1-A discusses the SLiM simulation of the American-admixed population and
+the processing of its data.
+This document discusses how to obtain and process the data not just for the American-admixed population
+but also for all four populations in the simulation. We focus on chromosomes 8 and 9 only to reduce 
+computational cost, and alter the original SLiM script as follows:
+1. at the top of the script, we provide an abbreviated recombination map, `Slim_Map.txt`, containing only those lines of the original recombination map (in the data frame, `s_map`) pertaining to chromosomes 8 and 9, and
+2. at the bottom of the script, we call `sim.outputFull()` rather than `p4.individuals.genomes.output()` to obtain the output.
+Otherwise, the SLiM script remains exactly the same as the original in Supplementary Material 1-A.
 
 ```{r, eval = FALSE}
 
 initialize() {
 
-// Read recombination map cretated by SimRVSequence R package
+// Read abbreviated recombination map for chromosomes 8 and 9. 
 
 lines = readFile("~/Slim_Map.txt");
 Rrates = NULL;
@@ -112,7 +113,7 @@ p2.setSubpopulationSize(asInteger(p2_size));
 p3.setSubpopulationSize(asInteger(p3_size));
 }
 
-// Create the admix population
+// Create the admixed population
 79012{
 p2_new_size = p2.individualCount;
 p3_new_size = p3.individualCount;
@@ -135,7 +136,7 @@ p3.setSubpopulationSize(asInteger(p3_new_size));
 p4.setSubpopulationSize(asInteger(p4_new_size));
 }
 
-// Output and terminate
+// Output for all populations (not just p4) and terminate
 79024 late() {
 sim.outputFull("~/output_all_chr8&9.txt");
 }
