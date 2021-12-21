@@ -138,7 +138,7 @@ p4.setSubpopulationSize(asInteger(p4_new_size));
 
 // Output for all populations (not just p4) and terminate
 79024 late() {
-sim.outputFull("~/output_all_chr8&9.txt");
+sim.outputFull("~/SLiM_output_chr8&9.txt");
 }
 
 
@@ -156,7 +156,8 @@ library(Matrix)
 library(data.table)
 
 # Read the SLiM output text file to R
-exDat <- readLines("D:/SFU_Vault/SLiM_Output/Output_all_chr8&9.txt")
+# Note:Change the path for the file as necessary.
+exDat <- readLines("D:/SFU_Vault/SLiM_Output/SLiM_output_chr8&9.txt")
 
 # Read the mutations and genomic sections in the output
 MutHead <- which(exDat == "Mutations:")

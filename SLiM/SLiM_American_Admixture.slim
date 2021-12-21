@@ -1,5 +1,8 @@
 initialize() {
 
+// Seed number which helps to reproduce the same result
+setSeed(2181144364021);
+  
 // Read recombination map created by SimRVSequence R package
 
 lines = readFile("~/Slim_Map_chr.txt");
@@ -89,7 +92,7 @@ p4.setSubpopulationSize(asInteger(p4_new_size));
 // Output and terminate
 79024 late() {
 // obtain a random sample of genomes from the whole population
-p4.individuals.genomes.output("~/output_chr.txt");
+p4.individuals.genomes.output("~/SLiM_output.txt");
 //This takes a sample of all individuals(entire population), gets their genomes, and outputs those genomes.  
 //In this case, the genomes will be paired from the individuals chosen.
 

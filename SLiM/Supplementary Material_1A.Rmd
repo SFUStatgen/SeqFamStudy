@@ -152,7 +152,7 @@ file can be found on our GitHub page at https://github.com/SFUStatgen/SeqFamStud
 initialize() {
 
 // Seed number which helps to reproduce the same result
-setSeed(2181144364021)
+setSeed(2181144364021);
   
 // Read recombination map created by SimRVSequence R package
 
@@ -246,7 +246,7 @@ p4.setSubpopulationSize(asInteger(p4_new_size));
 
 // Output and terminate
 79024 late() {
-p4.individuals.genomes.output(filePath = "~/Output_Full.txt");
+p4.individuals.genomes.output(filePath = "~/SLiM_output.txt");
 }
 
 ```
@@ -255,14 +255,14 @@ Before the simulation starts, we need to initialize the mutation rate, recombina
 Then we create three null vectors named \texttt{Rrates}, \texttt{Mrates} and \texttt{ends} to save the recombination rates, mutation rates and end positions of each exon in our recombination map, respectively. 
   
 Next, we use a \texttt{for}-loop to move along the genome, reading each line of the recombination map and:
-    - save the recombination rate, mutation rate and end position of each genomic segment, 
-    - initialize the recombination rate for each genomic segment with the \texttt{initializeRecombinationRate()} function, by specifying the rate and the end position of the genomic segment, 
-    - initialize the mutation rate for each genomic segment with the \texttt{initializeMutationRate()} function, 
-    - specify that the genomic segment belongs to an autosomal chromosome with the \texttt{initializeSex()} function,
-    - specify the mutation type for each genomic segment with the \texttt{initializeMutationType()} function (see below),
-    - specify the mutation stacking policy for each genomic segment with the 
+- save the recombination rate, mutation rate and end position of each genomic segment, 
+- initialize the recombination rate for each genomic segment with the \texttt{initializeRecombinationRate()} function, by specifying the rate and the end position of the genomic segment, 
+- initialize the mutation rate for each genomic segment with the \texttt{initializeMutationRate()} function, 
+- specify that the genomic segment belongs to an autosomal chromosome with the \texttt{initializeSex()} function,
+- specify the mutation type for each genomic segment with the \texttt{initializeMutationType()} function (see below),
+- specify the mutation stacking policy for each genomic segment with the 
     \texttt{mutationStackPolicy} command (see below),
-    - specify the type for each genomic segment with the \texttt{initializeGenomicElementType()} function (see below).
+- specify the type for each genomic segment with the \texttt{initializeGenomicElementType()} function (see below).
   
 In exons, the last base-pair position in a three base-pair codon (coding for an amino acid in a protein) is a synonymous site. Synonymous sites are viewed as selectively neutral in comparison to the first two base-pair positions in a codon, which are non-synonymous. Therefore, we simulate two types of mutations: synonymous and non-synonymous.
 The \texttt{initializeMutationType}("m1", 0.5, "g", -0.043, 0.23) callback in the for-loop explains all the parameters that are held by the "m1" mutation type. We use "m1" to represent the non-synonymous mutations. These non-synonymous mutations have a dominance coefficient of 0.5 and the selection coefficient is generated from a gamma distribution with mean -0.043 and shape parameter is 0.23 [@Harris2016]. We initialize the synonymous mutations separately with another call to the \texttt{initializeMutationType()} function. In \texttt{initializeMutationType}("m2", 0.5, "f", 0.0) callback, the "m2" mutation type represents the synonymous mutations and they have a fixed selection coefficient denoted by "f". The selection coefficient of this type of mutation is always 0, as seen in the fourth argument of the function. The dominance coefficient in the second argument of the function is 0.5.
@@ -302,7 +302,7 @@ Finally in generation 79024 of the simulation (the present) we terminate our SLi
 We only consider the SLiM output for the American admixed sub-population. 
 We extract the genomic sequences of all individuals in the admixed sub-population with the function \texttt{p4.individuals.genomes.output()} obtaining output formatted as follows: 
 
-\textbf{\#OUT: 79024 GS 107752 /project/6007536/epasiedn/SLiM/American\_Admixture/Output\_Full.txt} \newline
+\textbf{\#OUT: 79024 GS 107752 /project/6007536/epasiedn/SLiM/American\_Admixture/SLiM\_output.txt} \newline
 Mutations: \newline
 7229 50171 m2 51287555 0 0.5 p1 5 60626 ...\newline
 13218 484904 m2 39812003 0 0.5 p1 45 9536 ... \newline
@@ -335,7 +335,7 @@ how we install the software on our own computer. Use the SLiM manual guidelines 
 After we install SLiM, we use a job scheduler on the compute cluster to run our jobs.
 On the Compute Canada Cluster, the job scheduler is the **Slurm Workload Manager** . 
 Slurm helps to allocate resources and time, and provides methods to execute our work.
-To run the SLiM script we write the following Slurm script, \texttt{job_serial.sh}: 
+To run the SLiM script we write the following Slurm script, \texttt{job\_serial.sh}: 
 
 ```{bash, eval = FALSE}
 #!/bin/bash
@@ -350,7 +350,8 @@ slim SLiM_American_Admixture.slim
 
 ```
 
-The content of \texttt{job_serial.sh} is described as follows.
+The content of \texttt{job\_serial.sh} is described as follows.
+
 - \texttt{\#SBATCH--account=def-jgraham} specifies the account name. In this example, the account name is "def-jgraham".
 - \texttt{\#SBATCH--ntasks=1} defines the number of processors. We request 1 processor to run the program. 
 - \texttt{\#SBATCH--time=7-05:05:00} specifies the time limit for the job. To avoid the simulation being stopped prematurely for running over the allocated time, we try to err on the side of allocating too much. 
@@ -382,8 +383,9 @@ library(tidyverse)
 library(Matrix)
 library(data.table)
 
-# Read the SLiM output text file to R
-exDat <- readLines("D:/SFU_Vault/SLiM_Output/Output_Full.txt")
+# Read the SLiM output text file to R\
+# Note:Change the path for the file as necessary.
+exDat <- readLines("D:/SFU_Vault/SLiM_Output/SLiM_output.txt")
 
 ```
 
