@@ -34,7 +34,7 @@ knitr::opts_chunk$set(echo = TRUE, cache=FALSE, messages=FALSE, warning=FALSE,fi
 
 
 
-- In this document, we discuss the second major phase of our work flow, shown in the blue box of the flow chart below. 
+This document discusses the second major step in our work-flow, shown in the blue box of the flow-chart below. 
 
 \begin{figure}[H]
 	\centering
@@ -45,64 +45,39 @@ knitr::opts_chunk$set(echo = TRUE, cache=FALSE, messages=FALSE, warning=FALSE,fi
 
 # Get to know the \texttt{sim\_Rvped()} function
 
-- The R package SimRVPedigree [@Nieuwoudt2018] simulates pedigrees ascertained to contain a minimum number of disease-affected relatives. 
+We use the SimRVPedigree [@Nieuwoudt2018] R package to simulate 150 pedigrees ascertained to contain four or more relatives affected with lymphoid cancer. Affected pedigree members can have either sporadically occurring disease or genetic disease caused by a single rare variant that is segregating in the pedigree. We refer to the causal rare variants as cRVs. The package constructs a pedigree by growing it from a single starting individual or "seed founder" and obtaining the seed founder's descendants. 
+A cRV may be introduced into the seed founder with probability equal to either one or the carrier probability of a cRV in the population.
+When a cRV is introduced into the seed founder with probability equal to the carrier probability of a cRV in the population, the pedigree is ascertained from the **general population**. 
+A *genetic* pedigree is defined as a pedigree in which the seed founder carries a cRV, whereas 
+a *sporadic* pedigree is defined as a pedigree in which the seed founder does not carry a cRV.
+Ascertained pedigrees may be either genetic or sporadic, and may contain both genetic and sporadic cases.
+Once a cRV is introduced into a seed founder, it is transmitted from parent to offspring according to Mendel's law. The age-specific life events of the seed founder and his/her descendants such as birth, disease onset and death are modelled according to the cRV carrier status of the individual. 
+The modeling requires specification of the age-specific incidence rates of disease, the age-specific hazard rates of death and the genetic relative-risk (GRR) of disease.
 
-- Affected pedigree members can have either sporadically occurring disease or genetic disease caused by a single rare variant that is segregating in the pedigree. We refer to the causal rare variants as cRVs.
-
-- We define a **genetic pedigree** to be a pedigree in which the seed founder carries a cRV. In contrast, a **sporadic pedigree** is a pedigree in which the seed founder does not carry a cRV.
-
-
-- The package constructs a pedigree by growing it from a single starting individual or "seed founder" and obtaining the seed founder's descendants.
-
-- The package allows us to introduce a cRV into the seed founder with probability equal to either one or the carrier probability of the cRV in the population. Once the cRV is introduced into a pedigree, it is transmitted from parent to offspring according to Mendel's law.
-
-- Specifically, the package models the age-specific life events of the seed founder and his/her descendants such as birth, disease onset and death based on cRV status. 
-
-- The modeling requires specification of the age-specific incidence rates of disease, the age-specific hazard rates of death and the genetic relative-risk (GRR) of disease.
-
-
-- A cRV is introduced into
-the seed founder with probability equal to that of carrying any of the possible cRVs in
-the population. This simulates pedigrees ascertained from the **general population**. 
-
-- Ascertained pedigrees may be either genetic or sporadic, and may contain both genetic and sporadic cases.
-
-- The second phase of our simulation study is generating a sample of 150 ascertained pedigrees, realistically.
-
-
-- For this task, we use the core function in the \texttt{SimRVPedigree} package: the \texttt{sim\_Rvped()} function.
-
-
-- The \texttt{sim\_RVped()} function generates a **single** pedigree
+We generate a sample of 150 ascertained pedigrees from the **general population**
+using `simRV_ped()`, the core function of the \texttt{SimRVPedigree} package.
+The \texttt{sim\_RVped()} function generates a **single** pedigree
 by simulating all life events of the
 seed founder and his/her descendants, as described by @Nieuwoudt2018. 
+Starting at the birth of an individual, the waiting times of the 
+individual's next three life events -- disease onset, reproduction and death -- are generated. 
+The event with the minimum waiting time is selected as the individual's next life event. The waiting time 
+is added to the current age of the individual and the corresponding life event is recorded.
+These steps are repeated until the individual dies or the study reaches its stop year.
+Further details of this function can be found in @graham.
 
-- Starting at the birth of an individual, the function generates the waiting times of their next three life events: disease onset, reproduction and death. 
-
-- The function then selects the event with the minimum waiting time as their next life event. It adds this waiting time to the current age of the individual and record the corresponding life event.
-
-- The function repeats these steps until the individual dies or the study reaches its stop year.
-
-- The complete details of using this function can be found in @graham.
-
-
-- We use the \texttt{sim\_RVped()} function to simulate 150 pedigrees from the population of general pedigrees.
-
-- The following is the set up of the function arguments.
-
-- The required arguments, explained below, are: \texttt{hazard\_rates},
+The required arguments of `simRV_ped()` are: \texttt{hazard\_rates},
 \texttt{GRR}, \texttt{num\_affected}, \texttt{ascertain\_span},
 \texttt{FamID}, and \texttt{founder\_byears}.
-Other arguments of specific interest
-in the upcoming simulation are also explained below including: 
-\texttt{stop\_year}, \texttt{carrier\_prob}, \texttt{RV\_founder}, \texttt{recall\_probs} and \texttt{first\_diagnosis}.
+Non-required arguments of specific interest to us are: 
+\texttt{stop\_year}, \texttt{carrier\_prob}, \texttt{RV\_founder}, \texttt{recall\_probs} and \texttt{first\_diagnosis}. A short description of these arguments follows.
 
 \begin{itemize}
-\item \texttt{\textbf{hazard\_rates}-} We use the  \texttt{AgeSpecific\_Hazards} dataset in the \texttt{SimRVPedigree} package. The first column of the \texttt{AgeSpecific\_Hazards} data-frame represents the age-specific hazard rates for the disease in the general population. The second column represents the age-specific hazard rates for death in the unaffected population. The third column represents the age-specific hazard rates for death in the affected population. 
+\item \texttt{\textbf{hazard\_rates}-} We use the  \texttt{AgeSpecific\_Hazards} dataset in the \texttt{SimRVPedigree} package. The first column of the \texttt{AgeSpecific\_Hazards} data-frame gives the age-specific hazard rates for the disease in the general population. The second column gives the age-specific hazard rates for death in the unaffected population. The third column gives the age-specific hazard rates for death in the affected population.
 
 \item \texttt{\textbf{GRR}-} the genetic relative-risk; i.e, the
-risk of disease for individuals who carry a copy of the cRV
-relative to those who carry no copies of the cRV. We use 50 as the GRR.
+risk of disease for individuals who carry a copy of a cRV
+relative to those who carry no copies of a cRV. We use 50 as the GRR.
 
 \item \texttt{\textbf{num\_affected}-} the minimum number of disease-affected members needed to ascertain the pedigree is set to 4. 
 
@@ -388,7 +363,6 @@ plot(study_peds[study_peds$FamID == 1, ], ref_year = 2020,
 sessionInfo()
 
 ```
-\newpage
 
 # Reference
 
