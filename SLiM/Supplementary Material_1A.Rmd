@@ -498,4 +498,4 @@ after combining the four populations.
 
 \newpage
 
-# Reference
+# References
