@@ -145,7 +145,7 @@ sim.outputFull("~/SLiM_output_chr8&9.txt");
 ```
 
 
-We read \texttt{output\_all\_chr8\&9.txt} into R and obtain the number of individuals in each population
+We read \texttt{SLiM\_output\_chr8\&9.txt} into R and obtain the number of individuals in each population
 and in all populations combined. 
 
 ```{r}

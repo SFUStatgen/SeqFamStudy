@@ -255,6 +255,7 @@ Before the simulation starts, we need to initialize the mutation rate, recombina
 Then we create three null vectors named \texttt{Rrates}, \texttt{Mrates} and \texttt{ends} to save the recombination rates, mutation rates and end positions of each exon in our recombination map, respectively. 
   
 Next, we use a \texttt{for}-loop to move along the genome, reading each line of the recombination map and:
+
 - save the recombination rate, mutation rate and end position of each genomic segment, 
 - initialize the recombination rate for each genomic segment with the \texttt{initializeRecombinationRate()} function, by specifying the rate and the end position of the genomic segment, 
 - initialize the mutation rate for each genomic segment with the \texttt{initializeMutationRate()} function, 
