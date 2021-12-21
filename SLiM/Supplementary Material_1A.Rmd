@@ -225,7 +225,7 @@ p2.setSubpopulationSize(asInteger(p2_size));
 p3.setSubpopulationSize(asInteger(p3_size));
 }
 
-// Create the admix population
+// Create the admixed population
 79012 early(){
 sim.addSubpop("p4", 30000); //This new subpopulation is created with 30000 new empty individuals
 p4.setMigrationRates(c(p1, p2, p3), c(0.1666667, 0.3333333, 0.5));
@@ -467,7 +467,7 @@ head(singleton)
 
 Among the 862,243 mutations, only 19% are singletons. By contrast,
 in the TopMed study, about half the variants are singletons [@Taliun2021].
-The following figure illustrates the allele frequency spectrum.
+The following figure illustrates the allele frequency spectrum in the simulated population.
 
 ```{r, warning=FALSE}
 # Plot the first 50 sites in the allele frequency spectrum
@@ -487,7 +487,7 @@ We believe that our simulated American-admixed population has fewer rare variant
 the TopMed population because it lacks TopMed's variety of source populations.
 Our SLiM simulation has only three source populations and we collect mutation data from only 
 the American-admixed population. By contrast, the TopMed study considers the entire 
-American population consisting of many more source populations. 
+American population consisting of many more source populations as well as an admixed population. 
 To investigate this hypothesis, we combined data from all four populations in our SLiM 
 simulation to see if the singleton percentage increased. Due to the high computational 
 cost, we simulated mutations for chromosomes 8 and 9 only. 
