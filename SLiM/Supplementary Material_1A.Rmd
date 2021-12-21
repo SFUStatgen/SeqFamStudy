@@ -38,7 +38,7 @@ This is the first in a series of RMarkdown documents describing how we simulated
 \begin{figure}[H]
 	\centering
 	\includegraphics[height = 1 \textwidth , width = 2 \textwidth]{Flow Chart.pdf}
-	\caption{Work flow for simulating the exome-sequencing data for ascertained pedigrees.}
+	\caption{Work-flow for simulating the exome-sequencing data for ascertained pedigrees.}
 	\label{flow chart}
 \end{figure}
 
