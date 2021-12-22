@@ -27,23 +27,41 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-
 Supplementary Material 1-A discusses the SLiM simulation of the American-admixed population and
 the processing of its data.
 This document discusses how to obtain and process the data not just for the American-admixed population
 but also for all four populations in the simulation. We focus on chromosomes 8 and 9 only to reduce 
 computational cost, and alter the original SLiM script as follows:
-1. at the top of the script, we provide an abbreviated recombination map, `Slim_Map.txt`, containing only those lines of the original recombination map (in the data frame, `s_map`) pertaining to chromosomes 8 and 9, and
+1. at the top of the script, we provide an abbreviated recombination map, `Slim_Map8n9.txt`, containing only those lines of the original recombination map (in the data frame, `s_map`) pertaining to chromosomes 8 and 9, and
 2. at the bottom of the script, we call `sim.outputFull()` rather than `p4.individuals.genomes.output()` to obtain the output.
 Otherwise, the SLiM script remains exactly the same as the original in Supplementary Material 1-A.
+
+The following R code chunk creates the abbreviated recombination map.
+
+```{r}
+# Create the file Slim_Map8n9.txt containing the recombination map 
+# for chromosomes 8 and 9 only. NB: We assume that you have already run
+# SupplementaryMaterial_1A.Rmd so that the s_map object it creates is 
+# already in your R workspace. 
+library(SimRVSequences)
+data("hg_exons")
+s_map<-create_slimMap(exon_df = hg_exons)
+library(tidyverse)
+library(Matrix)
+library(data.table)
+slimMap8n9<- s_map[(s_map[,"chrom"]==8 | s_map[,"chrom"]==9), c("recRate","mutRate","endPos")]
+slimMap8n9$endPos <- slimMap8n9$endPos-1
+write.table(slimMap8n9, file="Slim_Map8n9.txt")
+```
+
+Now we are ready to run the following SLiM script.
 
 ```{r, eval = FALSE}
 
 initialize() {
 
-// Read abbreviated recombination map for chromosomes 8 and 9. 
-
-lines = readFile("~/Slim_Map.txt");
+// Read in the abbreviated recombination map for chromosome 8 and 9.
+lines = readFile("~/Slim_Map8n9.txt");
 Rrates = NULL;
 Mrates = NULL;
 ends = NULL;
@@ -149,16 +167,9 @@ We read \texttt{SLiM\_output\_chr8\&9.txt} into R and obtain the number of indiv
 and in all populations combined. 
 
 ```{r}
-
-library(SimRVSequences)
-library(tidyverse)
-library(Matrix)
-library(data.table)
-
 # Read the SLiM output text file to R
 # Note:Change the path for the file as necessary.
-exDat <- readLines("D:/SFU_Vault/SLiM_Output/SLiM_output_chr8&9.txt")
-
+exDat <- readLines("/Users/jgraham/OneDrive - Simon Fraser University (1sfu)/NirodhaStuff/Data/SLiM_output_chr8&9.txt")
 # Read the mutations and genomic sections in the output
 MutHead <- which(exDat == "Mutations:")
 GenHead <- which(exDat == "Genomes:")
