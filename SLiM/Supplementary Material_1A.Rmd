@@ -32,12 +32,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 \newpage
 
-
 This is the first in a series of RMarkdown documents describing how we simulated exome-sequencing data in pedigrees ascertained to have four or more relatives affected with lymphoid cancer. The following flow chart illustrates the overall workflow for this project. 
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[height = 1 \textwidth , width = 2 \textwidth]{Flow Chart.pdf}
+	\includegraphics[height = 1 \textwidth , width = 8.8 \textwidth]{Flow Chart.pdf}
 	\caption{Work-flow for simulating the exome-sequencing data for ascertained pedigrees.}
 	\label{flow chart}
 \end{figure}
@@ -126,11 +125,10 @@ In the American-Admixture model [@Browning2018], the pre-admixture model paramet
 
  \begin{figure}[H]
 \centering
-\includegraphics[height = 0.9\textwidth , width = 1 \textwidth ]{Out of Africa model.jpg}
-	\caption{The inferred Out-of-Africa demographic model [@Gravel2011].}
+\includegraphics[height = 0.45\textwidth , width = 1 \textwidth ]{Out of Africa model.jpg}
+	\caption{The inferred Out-of-Africa demographic model.}
 	\label{outof africa model}
 \end{figure}
-
 
 In the figure, the parameter estimates have been rounded and times are expressed in kilo-years before present (kya). The demographic model has three populations representing Africa, Europe and Asia. The initial effective population size of Africa was $7310$ individuals which then increased to $14,474$ individuals $5920$ generations ago (148 kya, assuming a generation time of 25 years).  About $2040$ generations ago (51 kya), the out-of-Africa migration event occurred with a migrating effective population size of $1861$ individuals. Then migration occurred between Africa and out-of-Africa populations with a rate of $1.5 \times 10^{-4}$ per generation. About 920 generations ago (23 kya), the out-of-Africa population split into two populations, Europe and Asia, with effective sizes of $1032$ and $554$ individuals, respectively. These two populations then grew at rates of $3.8 \times 10^{-3}$ per generation for Europe and $4.8 \times 10^{-3}$ per generation for Asia. Further, between these three populations, (Africa , Europe and Asia) migrations occurred. The migration rates per generation were $2.5 \times 10^{-5}$ between Africa and Europe, $7.8 \times 10^{-6}$ between Africa and Asia, and $3.11 \times 10^{-5}$ between Europe and Asia [@Browning2018].
 Admixing started about $12$ generations ago (0.3 kya) with the initial effective size of the admixed population being $30,000$ individuals. The growth rate of the admixed population was $5\%$ per generation with $\frac{1}{6}$ of the 
@@ -384,10 +382,9 @@ library(tidyverse)
 library(Matrix)
 library(data.table)
 
-# Read the SLiM output text file to R\
+# Read the SLiM output text file to R
 # Note:Change the path for the file as necessary.
-exDat <- readLines("D:/SFU_Vault/SLiM_Output/SLiM_output.txt")
-
+exDat <- readLines("/Users/jgraham/OneDrive - Simon Fraser University (1sfu)/NirodhaStuff/Data/SLiM_output.txt")
 ```
 
 The file size of \texttt{SLiM\_output.txt} is approximately 6 GB and 
@@ -499,6 +496,5 @@ An additional RMarkdown document, for supplementary material 1-B, discusses the 
 generate and summarize all the source populations and check the proportions of singletons, 
 after combining the four populations. 
 
-\newpage
 
 # References
