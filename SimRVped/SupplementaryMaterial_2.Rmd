@@ -32,9 +32,9 @@ knitr::opts_chunk$set(echo = TRUE, cache=FALSE, messages=FALSE, warning=FALSE,fi
 
 \newpage
 
-
-
-This document discusses the second major step in our work-flow, shown in the blue box of the flow-chart below. 
+This document discusses the second major step in our work-flow to 
+simulate exome-sequencing data in pedigrees ascertained to have four or more relatives affected with lymphoid cancer. The overall workflow for this project is shown below. This document focuses on the part of the flowchart labelled as
+2 (the blue box).
 
 \begin{figure}[H]
 	\centering
@@ -102,16 +102,12 @@ probability 0.75, and so forth.
 
 \end{itemize} 
 
-GOT HERE
-We set the above values for the arguments in the \texttt{sim\_RVped()} function and use the Compute Canada cluster for the simulation. The reason for using the cluster is that the simulation time is comparatively high and it varies pedigree to pedigree. 
 
--  The next sub-section explains the Compute Canada cluster simulation. 
+We set the above values for the arguments in the \texttt{sim\_RVped()} function and use the Compute Canada cluster for the simulation. We use an array job on the cluster, with a processor (CPU) to simulate each pedigree. Each pedigree takes time to simulate and it varies from pedigree to pedigree. 
 
 # Simulate pedigrees on the Compute Canada cluster
 
-- In the cluster we submit the job as an array job. (We submit 150 jobs and each job represents a pedigree.)
-
-- The following code chunk is used as the slurm batch file. 
+We use the following slurm batch file to submit an array job with a processor for each of the 150 pedigrees. 
 
 ```{bash, eval = FALSE}
 
@@ -130,28 +126,29 @@ R CMD BATCH --no-save SimRVpedigree.R
 
 ```
 
-- When we submit an array job the resources asked for correspond to one sub job (one array).
+In the batch script above, the parameters are set as follows. 
 
-- Let's understand each line of the above batch script file. 
+- \texttt{\#SBATCH--account=def-jgraham} - specifies the project account
+on Compute Canada. In this example, the project account is "def-jgraham".
 
-- \texttt{\#SBATCH--account=def-jgraham} - specifies the account name. In this example, the account name is "def-jgraham".
+- \texttt{\# SBATCH --array= 1:150}- specifies the array of tasks, one for 
+each of the 150 pedigrees. 
 
-- \texttt{\# SBATCH --array= 1:150}- specifies the array. We create an array starting from 1 to 150. (The number of pedigrees.)
+- \texttt{\#SBATCH--ntasks=1} - defines the number of array tasks per processor. We request 1 processor to run each task (i.e. each one of our 150 pedigrees, will use 1 CPU).
 
-- \texttt{\#SBATCH--ntasks=1} - defines the number of processors. We request 1 processor to run each sub job (each one of our 150 sub jobs, will use 1 CPU )
+- \texttt{\#SBATCH--mem=40000M } - specifies memory that we require to run each task in the array. We request 4GB. 
 
-- \texttt{\#SBATCH--mem=40000M } - specifies memory that we require to run each sub job (each array). We request 4GB. 
-
-- \texttt{\#SBATCH--time=23:59:00}- specifies the time limit for each sub job. If we allocate 24 hours or more to run a sub job, we must wait longer in the queue to start a sub job than if we allocate less than 24 hours.  
+- \texttt{\#SBATCH--time=23:59:00}- specifies the time limit for each task. If we allocate 24 hours or more to run a task, we must wait longer in the queue to start a task than if we allocate less than 24 hours.  
 
 
 - \texttt{module load  nixpkgs/16.09 gcc/5.4.0  r/3.5.0 }- loads the R version that we installed.
 
-- \texttt{echo "This is job \$ SLURM\_ARRAY\_TASK\_ID out of \$ SLURM\_ARRAY\_TASK\_COUNT jobs."}- prints the job number out of 150 jobs.  
+- \texttt{echo "This is job \$ SLURM\_ARRAY\_TASK\_ID out of \$ SLURM\_ARRAY\_TASK\_COUNT jobs."}- prints the job number out of 150 tasks.  
 
-- We use \texttt{R CMD BATCH} command to submit our R script.
+We use the \texttt{R CMD BATCH} command to submit 
+the \texttt{SimRVpedigree.R} script to the cluster.
+The contents of the script is given below.
 
-- The \texttt{SimRVpedigree.R} script is as follows:
 
 ```{r, eval = FALSE}
 
@@ -194,19 +191,12 @@ analyseData(dID)
 
 ```
 
-- In the above script, we create a function, \texttt{analyseData()}, and inside this function we call the \texttt{sim\_RVped()} function.
+In the above script, we create a function \texttt{analyseData()} which calls the \texttt{sim\_RVped()} function. The \texttt{analyseData()} function has one argument,\texttt{dataID}, for the task identifier created by the cluster scheduler. The environment variable, \texttt{SLURM\_ARRAY\_TASK\_ID}, identifies each task in the array. In the last two lines of the R script above, we use $\texttt{dID = Sys.getenv("SLURM\_ARRAY\_TASK\_ID")}$ to get the task identifier and assign it as the argument to the \texttt{analyseData()} function.
+\texttt{dID} is also assigned as the random seed for each pedigree. Since each pedigree is a task that is run separately on a different CPU in the cluster, we want to assign a different seed value each time. 
 
-- The \texttt{analyseData} function has one argument,\texttt{dataID}, and this represents the array identity number created by the cluster job. 
-
-- The environment variable, \texttt{SLURM\_ARRAY\_TASK\_ID}, identifies the individual identity number of each job in the array.
-
-- We use $\texttt{dID = Sys.getenv("SLURM\_ARRAY\_TASK\_ID")}$ to get the array job identities and assign this as the \texttt{analyseData()} function argument (last two lines of the above R script).
-
-- Also, the same variable, \texttt{dID}, is assigned as the seed value of each iteration. Since each job runs separately in a different CPU in the cluster, we can not assign the same seed value for each job. Therefore, we change the seed value for each job. The job number is set as the seed value.
-
-- Among 150 sub jobs, 140 jobs are run within allocated time period. However, the unfinished jobs are run again. (The reason for this is some pedigrees take a longer time to ascertain.)
-
-- We use the linux command \texttt{ls} to identify the finished jobs. This command returns all the files in our directory and among them we get the job IDs that are missing. Among all 150 jobs, IDs 14, 30, 48, 50, 63, 73, 83, 94, 102 and 129 are unfinished. We run these jobs again. The following code chunk represents how we identify the unfinished jobs.
+Among the 150 tasks, 140 manage to run within the allocated time period.
+Some tasks take longer because some pedigrees take a longer time to ascertain.  The unfinished tasks are run again, with a different random seed. 
+We use the linux command \texttt{ls} to identify the finished jobs. This command returns all the files in our directory, so that we can see which task IDs are missing. Among all 150 tasks, IDs 14, 30, 48, 50, 63, 73, 83, 94, 102 and 129 are unfinished. The following code chunk shows how we identify the unfinished tasks.
 
 ```{bash, eval = FALSE}
 
@@ -257,16 +247,13 @@ analyseData(dID)
 ```
 
 
-- Also, for these unfinished jobs, we need to assign a new seed value. For that we set, \texttt{job number * 20} as the seed value for each unfinished job. (i.e. \texttt{seed = as.numeric(dID)*20}.) The reason of selecting 20 as the multiplier is to avoid repeating the seed values. As an example, if we multiply the job ID 14 by 10, we get 140 as the seed and we already use this seed for the family ID 140 in the previous run. 
-
-- We get the 150 simulated pedigrees separately (i.e. we have 1.txt, 2.txt,...,150.txt objects) and we read all of them into R and save as \texttt{study\_peds.txt} file.
-
-- We use a for loop to read all the 150 pedigrees and save them in a list. Then we combine all 150 list elements to a single data frame. The following code chunk explains this.
+For these unfinished tasks, we need to assign a new seed value which we set to be \texttt{job number * 20}; i.e. \texttt{seed = as.numeric(dID)*20}.
+We select 20 as the multiplier to avoid repeating the seed values. For example, a multiplier of 10 doesn't work because if we multiply task ID 14 by 10, we get 140 as the seed, which has already been used for pedigree ID 140 in the previous run.  In this way, we obtain the 150 simulated pedigrees in separate files (i.e.  1.txt, 2.txt,...,150.txt), read them all into R and save them in a single file called \texttt{study\_peds.txt}. We use a `for`-loop to read in the pedigrees and save them in a list. Then we combine all 150 list elements into a single data frame as shown in the next code chunk.
 
 
 ```{r, eval = FALSE}
 
-## Load all the simulated 150 pedigrees and save them in a single list
+## Load all 150 simulated pedigrees, save them in a single list, and write them to a text file.
 
 study_peds <- list()
 
@@ -286,9 +273,7 @@ write.table(study_peds, file = "study_peds.txt")
 
 # Examine the simulated pedigrees 
 
-- We read the file, \texttt{study\_peds.txt}, to R and convert the data frame to the class of \texttt{ped} using the \texttt{new.ped()} function in the \texttt{SimRVPedigree} R package.
-
-- We print the session information at the end of this code chunk.
+In the next code chunk, we read \texttt{study\_peds.txt} into R as a data frame and convert it to class \texttt{ped} using the \texttt{new.ped()} function of the \texttt{SimRVPedigree} R package.
 
 ```{r}
 library(SimRVPedigree)
@@ -303,20 +288,17 @@ head(study_peds)
 
 ```
 
+The rows of \texttt{study\_peds} represent individuals and the columns are:
 
-- The \texttt{study\_peds}, is a data-frame that represents the ascertained pedigrees.
-
-- The rows of the data-frame represent the individuals in the pedigree and the columns are:
-
-1. \texttt{FamID}- the family identity number.
+1. \texttt{FamID}- the identity number of the ascertained pedigre.
 2. \texttt{ID}- the individual identity number.
-3. \texttt{sex}- sex of the individual such that \texttt{sex} = 0 for males, and \texttt{sex} = 1 females.
+3. \texttt{sex}- sex of the individual, with \texttt{sex} = 0 for males and \texttt{sex} = 1 for females.
 4. \texttt{dadID}- individual identity number of the father.
 5. \texttt{momID}- individual identity number of the mother.
-6. \texttt{affected}- the disease status of the individual, such that
+6. \texttt{affected}- the disease status of the individual, with
 \texttt{affected = TRUE} if the individual has developed disease and \texttt{affected = FALSE} otherwise.
-7. \texttt{DA1}- the cRV status of the paternally inherited allele, such that \texttt{DA1 = 1} if the cRV is inherited and 0 otherwise.
-8. \texttt{DA2}- the cRV status of the maternally inherited allele such that \texttt{DA2 = 1} if the cRV is inherited and 0 otherwise.
+7. \texttt{DA1}- the cRV status of the paternally inherited allele, with \texttt{DA1 = 1} if the cRV is inherited and 0 otherwise.
+8. \texttt{DA2}- the cRV status of the maternally inherited allele, with \texttt{DA2 = 1} if the cRV is inherited and 0 otherwise.
 9. \texttt{birthYr}- the birth year of the individual.
 10. \texttt{onsetYr}- the disease-onset year of the individual, when applicable, and NA otherwise.
 11. \texttt{deathYr}- the death year of the individual, when applicable, and NA otherwise.
@@ -326,9 +308,9 @@ descends from the seed founder and is recalled by the proband then \texttt{avail
 \texttt{available = FALSE}. Finally, if an individual is not descended from the seed founder (i.e. has married into the pedigree) \texttt{available = FALSE}. 
 
 14. \texttt{Gen}- the generation of the individual within the pedigree. 
-15. \texttt{proband}- the proband status, such that \texttt{proband = TRUE} if the individual is the proband and \texttt{FALSE} otherwise. 
+15. \texttt{proband}- the proband status, with \texttt{proband = TRUE} if the individual is the proband and \texttt{FALSE} otherwise. 
 
-- Let's next draw a pedigree in the year 2020:
+Let's draw the first pedigree in `study_peds`, in the year 2020:
 
 ```{r}
 
@@ -337,27 +319,16 @@ plot(study_peds[study_peds$FamID == 1, ], ref_year = 2020,
 
 ```
 
-
-- The seed founder is the individual with ID 1 and he and all his descendants have age data relative to the reference year of 2020.
-
-- We create age labels at a selected reference year by providing the argument \texttt{ref\_year} to the \texttt{plot()} function. 
-
-- The birth year and the death year of dead individuals are displayed in parentheses. The age of the individuals who are alive at the end of the reference year displays under their symbol.
-
-- Any individual with disease onset before the end of the reference year has a disease-onset year given under their symbol. The legend identifies affected individuals, the proband, and the cRV status of the individuals. 
-
-- Disease-affected individuals have solid shading in the upper-left third of their symbol (IDs 1, 3, 4 and 20).  
-
-- The proband (ID 4) has shading in the lower portion of their symbol. 
-
-- Carrier individuals (IDs 1, 3, 4, 7, 8, 9 and 20) have shading in the upper-right portion of their symbol. 
+The legend identifies affected individuals, the proband, and the cRV status of the individuals. 
+Disease-affected individuals have solid shading in the upper-left third of their symbol (IDs 1, 3, 4 and 20).
+The proband (ID 4) has shading in the lower portion of their symbol. 
+Carrier individuals (IDs 1, 3, 4, 7, 8, 9 and 20) have shading in the upper-right portion of their symbol. 
+The seed founder is the individual with ID 1 and he and all his descendants have ages relative to the reference year of 2020. We create age labels at a selected reference year by providing the argument \texttt{ref\_year} to the \texttt{plot()} function. The birth year and the death year of dead individuals are displayed in parentheses. The age of the individuals who are alive at the end of the reference year displays under their symbol.
+Any individual with disease onset before the end of the reference year has a disease-onset year given under their symbol. 
 
 
-- We use \texttt{study\_peds.text} file to simulate genetic sequence data for the affected individuals in these pedigrees.
-
-- We will discuss about this in our third supplementary material.
-
-- Finally we print the session information to get to know about the R version and the \texttt{SimRVPedigree} package information that we used in this analysis as follows.
+For reference, session information giving the versions of R and  
+packages used by the \texttt{SimRVPedigree} package is as follows.
 
 ```{r}
 # Get the session information
@@ -365,6 +336,8 @@ sessionInfo()
 
 ```
 
-# Reference
+In the third and final step of our workflow, to be discussed next, the file \texttt{study\_peds.text} will be used to simulate the exome-sequencing data for the 150 ascertained pedigrees. 
+
+# References
 
 
