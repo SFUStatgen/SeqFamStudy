@@ -33,8 +33,7 @@ knitr::opts_chunk$set(echo = TRUE, cache=FALSE, messages=FALSE, warning=FALSE,fi
 \newpage
 
 This document discusses the second major step in our work-flow to 
-simulate exome-sequencing data in pedigrees ascertained to have four or more relatives affected with lymphoid cancer. The overall workflow for this project is shown below. This document focuses on the part of the flowchart labelled as
-2 (the blue box).
+simulate exome-sequencing data in pedigrees ascertained to have four or more relatives affected with lymphoid cancer (the blue box labelled 2).
 
 \begin{figure}[H]
 	\centering
@@ -279,8 +278,8 @@ In the next code chunk, we read \texttt{study\_peds.txt} into R as a data frame 
 library(SimRVPedigree)
 
 # import study peds
-study_peds <- read.table("study_peds.txt", header=TRUE, sep= " ")
-
+study_peds <- read.table("/Users/jgraham/OneDrive - Simon Fraser University (1sfu)/NirodhaStuff/Data/study_peds.txt", header=TRUE, sep= " ")
+ 
 # create an object of class ped, from a data.frame,
 study_peds <- new.ped(study_peds)
 
