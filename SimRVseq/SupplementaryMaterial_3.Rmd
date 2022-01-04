@@ -41,7 +41,7 @@ library(reshape2)
 
 This document discusses the gene-dropping step in our work-flow 
 (the orange box labelled 3). Gene-dropping in the ascertained 
-pedigrees is the third and finalvstep required to simulate the exome-sequencing data of affected individuals
+pedigrees is the third and final step required to simulate the exome-sequencing data of affected individuals
 and their relatives connecting them along a 
 line of descent in the ascertained pedigrees. 
 
@@ -583,8 +583,10 @@ sim_RVstudy_new <- function(ped_files, SNV_data, fam_RVs,
   
   #assign generation number if not included in ped_file
   if(!"Gen" %in% colnames(ped_files)){
-    ped_files$Gen <- unlist(lapply(unique(ped_files$FamID), 
-                                   function(x){SimRVSequences:::assign_gen(ped_files[ped_files$FamID == x, ])}))
+    ped_files$Gen <- unlist(lapply(unique(ped_files$FamID),                               
+                              function(x){
+                                SimRVSequences:::assign_gen(ped_files[
+                                  ped_files$FamID == x, ])}))
   }
   
   # save mutations and haplotypes in SNV_map and haplos objects
@@ -637,7 +639,8 @@ sim_RVstudy_new <- function(ped_files, SNV_data, fam_RVs,
     #         "\n ... randomly sampling one SNV to be the cRV for all pedigrees.")
   }
   
- # Check whether any candidates for the familial cRV lie on the chromosome. This next block of code is changed from the original.
+ # Check whether any candidates for the familial cRV lie on the chromosome. 
+ # This next block of code is changed from the original.
   for(k in 1:length(FamIDs)){
     if(any(SNV_map$SNV == fam_RVs[k])){
       ped_files[ped_files$FamID == k, ]$DA1 <- ped_files[ped_files$FamID == 
@@ -1181,7 +1184,7 @@ regardless of which chromosome is used.
 # Call the function for chromosome 21
 sample_data <- plink_format_samp(study_seq[[21]]$ped_files)
 
-# How many individuals?
+# How many individuals.
 nrow(sample_data)
 
 # Print the first 6 individuals
