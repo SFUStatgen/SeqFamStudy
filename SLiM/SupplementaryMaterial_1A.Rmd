@@ -288,7 +288,7 @@ Then we create the alternating start and end positions of the "g1" and "g2" geno
 Finally, we initialize the two genomic elements "g1" and "g2" with \texttt{initializeGenomicElement()}, supplying their starting and ending positions along the exome. 
 
 After the \texttt{initialize()} callbacks end, we run our simulation under the Out-of-Africa model described in the SLiM manual [@Haller2019a], with exact parameter estimates from @Gravel2011.
-In the first generation, the African ancestral population, labelled "p1", is created with the function \texttt{sim.addSubpop()} and initial effective population size of 7310 individuals. @Haller2019a start the model at 79024 generations back from the present (gbp) and set it to be generation 0 in the forwards simulation. The simulation then takes 10*\texttt{African ancestral population size} generations as the neutral burn-in time [@Haller2019a]. At generation 73105 in the simulation (5919 gbp), the ancestral population, "p1", increases in effective size from $\sim7310$ to $\sim14474$ individuals. Subsequently, at generation 76968 of the simulation (2056 gbp), the African ancestral population, "p1",  splits into the Eurasian ancestral sub-population, "p2", and migration starts between these two subpopulations.  The command \texttt{p1.setMigrationRates} sets the migration rate from the African to the Eurasian ancestral sub-population, while \texttt{p2.setMigrationRates} sets the migration rate from the Eurasian ancestral to the African sub-population. Then at 78084 generations in the simulation (940 gbp), the "p2" Eurasian sub-population splits into European and Asian sub-populations. We create a new sub-population,"p3", to represent the Asian sub-population and let the Eurasian ancestral sub-population become the European sub-population.
+In the first generation, the African ancestral population, labelled "p1", is created with the function \texttt{sim.addSubpop()} and initial effective population size of 7310 individuals. @Haller2019a start the model at 79024 generations back from the present (gbp) and set it to be generation 0 in the forwards simulation. The simulation then takes 10*\texttt{African ancestral population size} generations as the neutral burn-in time [@Haller2019a]. At generation 73105 in the simulation (5919 gbp), the ancestral population, "p1", increases in effective size from $\sim7310$ to $\sim14474$ individuals. Subsequently, at generation 76968 of the simulation (2056 gbp), the African ancestral population, "p1",  splits into the Eurasian ancestral sub-population, "p2", and migration starts between these two sub-populations.  The command \texttt{p1.setMigrationRates} sets the migration rate from the African to the Eurasian ancestral sub-population, while \texttt{p2.setMigrationRates} sets the migration rate from the Eurasian ancestral to the African sub-population. Then at 78084 generations in the simulation (940 gbp), the "p2" Eurasian sub-population splits into European and Asian sub-populations. We create a new sub-population,"p3", to represent the Asian sub-population and let the Eurasian ancestral sub-population become the European sub-population.
 After the Eurasian ancestral population becomes the Asian and European sub-populations, we allow for 
 migration between the African, Asian and European sub-populations, setting the migration rates according to 
 the literature. Then, starting from 78084 generations in the simulation (940 gbp), we specify exponential growth in European (p2) and Asian (p3) sub-populations, until 79012 generations in the simulation (12 gbp). 
@@ -384,7 +384,7 @@ library(data.table)
 
 # Read the SLiM output text file to R
 # Note:Change the path for the file as necessary.
-exDat <- readLines("/Users/jgraham/OneDrive - Simon Fraser University (1sfu)/NirodhaStuff/Data/SLiM_output.txt")
+exDat <- readLines("D:/SFU_Vault/SLiM_Output/SLiM_output.txt")
 ```
 
 The file size of \texttt{SLiM\_output.txt} is approximately 6 GB and 
@@ -447,7 +447,7 @@ af_less_per
 Among the 862,243 mutations segregating in the simulated American-admixed population, approximately 94% 
 have derived allele frequencies less than 1%. This is slightly less than the approximately 
 97% of single-nucleotide variants observed to have alternate allele
-frequences less than 1% in the TopMed study of the American population [@Taliun2021]. 
+frequencies less than 1% in the TopMed study of the American population [@Taliun2021]. 
 
 Next, we check the percentage of mutations that are singletons 
 in the simulated American admixed population.
