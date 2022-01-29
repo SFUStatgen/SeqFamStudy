@@ -529,7 +529,7 @@ table(cRV_data[cRV_data$is_CRV ==  TRUE, ]$chrom)
 
 According to the above outputs, 108 RVs are sampled as cRVs. Their cumulative derived-allele frequency in the population is 0.001. The table summarizes the number of cRVs on each chromosome. For example, only one cRV is on chromosome 1; 21 cRVs reside in chromosome 2 and so forth. 
 
-Then we add the \texttt{is\_CRV} column to all 22 mutation data frames in \texttt{slim\_out} object as follows.
+Then we add the \texttt{is\_CRV} column to all 22 mutation data frames in the \texttt{slim\_out} object as follows.
 
 ```{r}
 # Add is_CRV column to all 22 mutation data frames
