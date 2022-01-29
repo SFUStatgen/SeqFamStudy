@@ -309,7 +309,7 @@ descends from the seed founder and is recalled by the proband then \texttt{avail
 14. \texttt{Gen}- the generation of the individual within the pedigree. 
 15. \texttt{proband}- the proband status, with \texttt{proband = TRUE} if the individual is the proband and \texttt{FALSE} otherwise. 
 
-Let's draw the first pedigree in `study_peds`, in the year 2020:
+Let's draw a pedigree in `study_peds`, in the year 2020. We will take the 39th pedigree out of the 150 generated:
 
 ```{r}
 
