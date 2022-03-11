@@ -11,4 +11,4 @@ Each coloured box in the chart is a major step in our data simulation. We have c
 2. SimRVped (blue box) - materials for simulating the 150 families containing four or more individuals affected with lymphoid cancer.
 3. SimRVseq (orange box) - materials for generating the sequence data of affected individuals and their relatives in the 150 families from step 2, given that they come from the population in step 1.
 
-This repository is archived in Zenodo at https://zenodo.org/record/5846846.
+This repository is archived in Zenodo at https://zenodo.org/record/6347546.
