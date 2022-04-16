@@ -107,7 +107,7 @@ The next section explains the demographic model we will use to simulate the popu
 exon-only SNV sequences. These sequences will be randomly sampled from the population to
 be assigned to the founders of our ascertained pedigrees in later steps of the workflow.
 
-# Explain the demographic model
+# Specify the demographic model
 
 Demographic models play a major role in understanding the genetic patterns in human populations. 
 Throughout human evolution, different demographic events such as expansion, migration, splitting etc. 
@@ -138,7 +138,7 @@ from Asian ancestry [@Browning2018].
 As described in the next section, we use SLiM together with the inferred American-admixture demographic 
 model to simulate population-level exon-only SNV sequences.
 
-# Simulate the demographic model in SLiM
+# Simulate population genetic data with SLiM
    
 The following SLiM script generates genome-wide exon-only SNV sequences for a population 
 under the American-Admixture demographic model. The script is a \texttt{.slim} file, which we have
