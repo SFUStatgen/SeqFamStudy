@@ -41,7 +41,7 @@ library(reshape2)
 
 This document discusses the gene-dropping step in our work-flow 
 (the orange box labelled 3). Gene-dropping in the ascertained 
-pedigrees is the third and finalvstep required to simulate the exome-sequencing data of affected individuals
+pedigrees is the third and final step required to simulate the exome-sequencing data of affected individuals
 and their relatives connecting them along a 
 line of descent in the ascertained pedigrees. 
 
@@ -70,7 +70,7 @@ We start by reading the SLiM simulation output, \texttt{SLiM\_output.txt}, into 
 library(Matrix) #this package is required throughout this document
 # Read the text file to R.
 # Note: Change the path for the file as necessary.
-exData <- readLines("/Users/jgraham/OneDrive - Simon Fraser University (1sfu)/NirodhaStuff/Data/SLiM_output.txt")
+exData <- readLines("D:/SFU_Vault/SLiM_Output/SLiM_output.txt")
 ```
 
 Next, we select rare SNVs based on their population derived (mutated) allele frequencies, as described in the next subsection. 
@@ -221,7 +221,7 @@ run on a Windows OS with an i7-8550U @ 1.8GHz,16GB, we
 recommend against running it to knit the document. Instead, load the \texttt{Chromwide.Rdata} file which can be found in the Zenodo repository.
 
 We use the \texttt{foreach()} function to parallelize the looping
-over the 22 chromosomes. To start, we create a "haplotypes" matrix for the corresponding chromosome. The haplotypes matrix is a sparse matrix of class `dgCMatrix` defined in the `simRVSequences` package. 
+over the 22 chromosomes. To start, we create a "haplotypes" matrix for the corresponding chromosome. The haplotypes matrix is a sparse matrix of class `dgCMatrix` defined in the `SimRVSequences` package. 
 The rows of the matrix correspond to sequences in the population and the columns to RVs that lie on the targeted chromosome.
 For any chromosome, the number of rows in the haplotypes matrix is the number of sequences in the population. 
 We get the IDs for RVs that lie on a particular chromosome from the \texttt{RareMutData} R object and match them to the column IDs of the haplotypes in the \texttt{RareGenome} R object. The RVs are ordered according to their base-pair position along the chromosome. The 
@@ -327,7 +327,7 @@ To identify the RVs that lie on the pathway of interest, we use the \texttt{iden
 # Load the output generated from the previous code chunk.
 # Note: Change the path for the file as necessary.
 
-load("/Users/jgraham/OneDrive - Simon Fraser University (1sfu)/NirodhaStuff/Data/Chromwide.Rdata")
+load("Chromwide.Rdata")
 
 #----------------------#
 # Identify Pathway SNVs #
@@ -529,6 +529,16 @@ table(cRV_data[cRV_data$is_CRV ==  TRUE, ]$chrom)
 
 According to the above outputs, 108 RVs are sampled as cRVs. Their cumulative derived-allele frequency in the population is 0.001. The table summarizes the number of cRVs on each chromosome. For example, only one cRV is on chromosome 1; 21 cRVs reside in chromosome 2 and so forth. 
 
+Then we add the \texttt{is\_CRV} column to all 22 mutation data frames in the \texttt{slim\_out} object as follows.
+
+```{r}
+# Add is_CRV column to all 22 mutation data frames
+slim_out <- lapply(1:22, function(x){ 
+  list(Haplotypes = slim_out[[x]]$Haplotypes,
+       Mutations = cRV_data[cRV_data$chrom == x, ])}) 
+
+```
+
 We are now ready to simulate exome sequences for the affected individuals in the 150 ascertained pedigrees, as described in the
 next section.
 
@@ -539,7 +549,7 @@ The \texttt{sim\_RVstudy()} function of the \texttt{SimRVSequences} R package si
 problem is that the population sequences of RVs cannot be contained
 in a single sparse matrix. We therefore modify 
 \texttt{sim\_RVstudy()} and
-various supporting functions in the `simRVSequences` package to handle chromosome-specific databases, as described in the next subsections.
+various supporting functions in the `SimRVSequences` package to handle chromosome-specific databases, as described in the next subsections.
 
 ##  Modify \texttt{sim\_RVstudy()} to simulate data by chromosome 
 
@@ -583,8 +593,10 @@ sim_RVstudy_new <- function(ped_files, SNV_data, fam_RVs,
   
   #assign generation number if not included in ped_file
   if(!"Gen" %in% colnames(ped_files)){
-    ped_files$Gen <- unlist(lapply(unique(ped_files$FamID), 
-                                   function(x){SimRVSequences:::assign_gen(ped_files[ped_files$FamID == x, ])}))
+    ped_files$Gen <- unlist(lapply(unique(ped_files$FamID),                               
+                              function(x){
+                                SimRVSequences:::assign_gen(ped_files[
+                                  ped_files$FamID == x, ])}))
   }
   
   # save mutations and haplotypes in SNV_map and haplos objects
@@ -637,7 +649,8 @@ sim_RVstudy_new <- function(ped_files, SNV_data, fam_RVs,
     #         "\n ... randomly sampling one SNV to be the cRV for all pedigrees.")
   }
   
- # Check whether any candidates for the familial cRV lie on the chromosome. This next block of code is changed from the original.
+ # Check whether any candidates for the familial cRV lie on the chromosome. 
+ # This next block of code is changed from the original.
   for(k in 1:length(FamIDs)){
     if(any(SNV_map$SNV == fam_RVs[k])){
       ped_files[ped_files$FamID == k, ]$DA1 <- ped_files[ped_files$FamID == 
@@ -709,7 +722,7 @@ sim_RVstudy_new <- function(ped_files, SNV_data, fam_RVs,
 } 
 ```
 
-\texttt{sim\_RVstudy()} requires the argument \texttt{SNV\_data}, an object of class \texttt{SNVdata} as defined by `simRVSequences` package. 
+\texttt{sim\_RVstudy()} requires the argument \texttt{SNV\_data}, an object of class \texttt{SNVdata} as defined by `SimRVSequences` package. 
 The \texttt{SNVdata()} function in the \texttt{SimRVSequences} R package converts haplotypes matrices and mutation data frames 
 into an object of class \texttt{SNVdata}. We modified the \texttt{SNVdata()} and the \texttt{check\_SNV\_map()} functions
 of the package to align with our changes in \texttt{sim\_RVstudy\_new()}. The \texttt{SNVdata()} and \texttt{check\_SNV\_map()} functions remain the same except that the mutation data frame provided as an 
@@ -807,7 +820,7 @@ Familial cRVs are sampled on the basis of their population derived-allele freque
 ```{r}
 # Load all 150 pedigrees.
 # Note: Change the path for the file as necessary.
-study_peds <- read.table("/Users/jgraham/OneDrive - Simon Fraser University (1sfu)/NirodhaStuff/Data/study_peds.txt", header=TRUE, sep= " ")
+study_peds <- read.table("study_peds.txt", header=TRUE, sep= " ")
 
 # Collect list of FamIDs.
 FamIDs <- unique(study_peds$FamID)
@@ -1181,7 +1194,7 @@ regardless of which chromosome is used.
 # Call the function for chromosome 21
 sample_data <- plink_format_samp(study_seq[[21]]$ped_files)
 
-# How many individuals?
+# How many individuals.
 nrow(sample_data)
 
 # Print the first 6 individuals

@@ -278,7 +278,7 @@ In the next code chunk, we read \texttt{study\_peds.txt} into R as a data frame 
 library(SimRVPedigree)
 
 # import study peds
-study_peds <- read.table("/Users/jgraham/OneDrive - Simon Fraser University (1sfu)/NirodhaStuff/Data/study_peds.txt", header=TRUE, sep= " ")
+study_peds <- read.table("study_peds.txt", header=TRUE, sep= " ")
  
 # create an object of class ped, from a data.frame,
 study_peds <- new.ped(study_peds)
@@ -289,7 +289,7 @@ head(study_peds)
 
 The rows of \texttt{study\_peds} represent individuals and the columns are:
 
-1. \texttt{FamID}- the identity number of the ascertained pedigre.
+1. \texttt{FamID}- the identity number of the ascertained pedigree.
 2. \texttt{ID}- the individual identity number.
 3. \texttt{sex}- sex of the individual, with \texttt{sex} = 0 for males and \texttt{sex} = 1 for females.
 4. \texttt{dadID}- individual identity number of the father.
@@ -309,19 +309,19 @@ descends from the seed founder and is recalled by the proband then \texttt{avail
 14. \texttt{Gen}- the generation of the individual within the pedigree. 
 15. \texttt{proband}- the proband status, with \texttt{proband = TRUE} if the individual is the proband and \texttt{FALSE} otherwise. 
 
-Let's draw the first pedigree in `study_peds`, in the year 2020:
+Let's draw a pedigree in `study_peds`, in the year 2020. We will take the 39th pedigree out of the 150 generated:
 
 ```{r}
 
-plot(study_peds[study_peds$FamID == 1, ], ref_year = 2020,
+plot(study_peds[study_peds$FamID == 39, ], ref_year = 2020,
      cex = 0.5)
 
 ```
 
 The legend identifies affected individuals, the proband, and the cRV status of the individuals. 
-Disease-affected individuals have solid shading in the upper-left third of their symbol (IDs 1, 3, 4 and 20).
-The proband (ID 4) has shading in the lower portion of their symbol. 
-Carrier individuals (IDs 1, 3, 4, 7, 8, 9 and 20) have shading in the upper-right portion of their symbol. 
+Disease-affected individuals have solid shading in the upper-left third of their symbol (IDs 1, 4, 8 and 10).
+The proband (ID 10) has shading in the lower portion of their symbol. 
+Carrier individuals (IDs 1, 4, 7, 9, 10, 12 and 13) have shading in the upper-right portion of their symbol. 
 The seed founder is the individual with ID 1 and he and all his descendants have ages relative to the reference year of 2020. We create age labels at a selected reference year by providing the argument \texttt{ref\_year} to the \texttt{plot()} function. The birth year and the death year of dead individuals are displayed in parentheses. The age of the individuals who are alive at the end of the reference year displays under their symbol.
 Any individual with disease onset before the end of the reference year has a disease-onset year given under their symbol. 
 
