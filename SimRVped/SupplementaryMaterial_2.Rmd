@@ -42,7 +42,7 @@ simulate exome-sequencing data in pedigrees ascertained to have four or more rel
 	\label{flow chart}
 \end{figure}
 
-# Get to know the \texttt{sim\_Rvped()} function
+# Sample ascertained pedigrees
 
 We use the SimRVPedigree [@Nieuwoudt2018] R package to simulate 150 pedigrees ascertained to contain four or more relatives affected with lymphoid cancer. Affected pedigree members can have either sporadically occurring disease or genetic disease caused by a single rare variant that is segregating in the pedigree. We refer to the causal rare variants as cRVs. The package constructs a pedigree by growing it from a single starting individual or "seed founder" and obtaining the seed founder's descendants. 
 A cRV may be introduced into the seed founder with probability equal to either one or the carrier probability of a cRV in the population.
