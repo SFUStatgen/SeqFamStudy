@@ -32,8 +32,8 @@ knitr::opts_chunk$set(echo = TRUE, cache=FALSE, messages=FALSE, warning=FALSE,fi
 
 \newpage
 
-This document discusses the second major step in our work-flow to 
-simulate exome-sequencing data in pedigrees ascertained to have four or more relatives affected with lymphoid cancer (the blue box labelled 2).
+The second major step in our work-flow simulates 150
+pedigrees ascertained to have four or more relatives affected with lymphoid cancer (the blue box labelled 2).
 
 \begin{figure}[H]
 	\centering
@@ -42,9 +42,9 @@ simulate exome-sequencing data in pedigrees ascertained to have four or more rel
 	\label{flow chart}
 \end{figure}
 
-# Sample ascertained pedigrees
+# Ascertain a pedigree
 
-We use the SimRVPedigree [@Nieuwoudt2018] R package to simulate 150 pedigrees ascertained to contain four or more relatives affected with lymphoid cancer. Affected pedigree members can have either sporadically occurring disease or genetic disease caused by a single rare variant that is segregating in the pedigree. We refer to the causal rare variants as cRVs. The package constructs a pedigree by growing it from a single starting individual or "seed founder" and obtaining the seed founder's descendants. 
+We use the SimRVPedigree [@Nieuwoudt2018] R package to ascertain a single pedigree simulated to contain four or more relatives affected with lymphoid cancer. Affected pedigree members can have either sporadically occurring disease or genetic disease caused by a single rare variant that is segregating in the pedigree. We refer to the causal rare variants as cRVs. The package constructs a pedigree by growing it from a single starting individual or "seed founder" and obtaining the seed founder's descendants. 
 A cRV may be introduced into the seed founder with probability equal to either one or the carrier probability of a cRV in the population.
 When a cRV is introduced into the seed founder with probability equal to the carrier probability of a cRV in the population, the pedigree is ascertained from the **general population**. 
 A *genetic* pedigree is defined as a pedigree in which the seed founder carries a cRV, whereas 
@@ -53,10 +53,9 @@ Ascertained pedigrees may be either genetic or sporadic, and may contain both ge
 Once a cRV is introduced into a seed founder, it is transmitted from parent to offspring according to Mendel's law. The age-specific life events of the seed founder and his/her descendants such as birth, disease onset and death are modelled according to the cRV carrier status of the individual. 
 The modeling requires specification of the age-specific incidence rates of disease, the age-specific hazard rates of death and the genetic relative-risk (GRR) of disease.
 
-We generate a sample of 150 ascertained pedigrees from the **general population**
+We ascertain a single pedigree from the **general population**
 using `simRV_ped()`, the core function of the \texttt{SimRVPedigree} package.
-The \texttt{sim\_RVped()} function generates a **single** pedigree
-by simulating all life events of the
+The \texttt{sim\_RVped()} function simulates all life events of a
 seed founder and his/her descendants, as described by @Nieuwoudt2018. 
 Starting at the birth of an individual, the waiting times of the possible next life events of
 the individual -- disease onset, reproduction and death -- are generated. 
@@ -102,7 +101,7 @@ probability 0.75, and so forth.
 \end{itemize} 
 
 
-We set the above values for the arguments in the \texttt{sim\_RVped()} function and use the Compute Canada cluster for the simulation. We use an array job on the cluster, with a processor (CPU) to simulate each pedigree. Each pedigree takes time to simulate and it varies from pedigree to pedigree. 
+We set the above values for the arguments in the \texttt{sim\_RVped()} function and use the Compute Canada cluster for the simulation. We use an array job on the cluster, with a processor (CPU) to simulate each pedigree. Due to the requirement that at least four relatives be known to be affected, the ascertainment of each pedigree is time-consuming and the simulation time is variable across pedigrees. However, as discussed below, we allocate up to 24 hours to simulate a pedigree.
 
 # Simulate pedigrees on the Compute Canada cluster
 
@@ -132,16 +131,16 @@ on Compute Canada. In this example, the project account is "def-jgraham".
 
 - \texttt{\# SBATCH --array= 1-150} - specifies an array of tasks with indices 1 
 through 150, one for each of the 150 pedigrees. More generally, users can
-specify indices $x$-$y$ to obtain $y-x+1$ pedigrees.
+specify indices $x$ through $y$ to obtain $y-x+1$ pedigrees.
 
 - \texttt{\#SBATCH--ntasks=1} - defines the number of array tasks per processor. We request 1 processor to run each task (i.e. each one of our 150 pedigrees, will use 1 CPU).
 
-- \texttt{\#SBATCH--mem=40000M } - specifies memory that we require to run each task in the array. We request 4GB. 
+- \texttt{\#SBATCH--mem=40000M} - specifies memory that we require to run each task in the array. We request 4GB. 
 
 - \texttt{\#SBATCH--time=23:59:00} - specifies the time limit for each task. If we allocate 24 hours or more to run a task, we must wait longer in the queue to start a task than if we allocate less than 24 hours.  
 
 
-- \texttt{module load  nixpkgs/16.09 gcc/5.4.0  r/3.5.0 } - loads the R version that we installed.
+- \texttt{module load  nixpkgs/16.09 gcc/5.4.0  r/3.5.0} - loads the R version that we installed.
 
 - \texttt{echo "This is job \$ SLURM\_ARRAY\_TASK\_ID out of \$ SLURM\_ARRAY\_TASK\_COUNT jobs."} - prints the job number out of 150 tasks.  
 
@@ -310,25 +309,23 @@ descends from the seed founder and is recalled by the proband then \texttt{avail
 14. \texttt{Gen}- the generation of the individual within the pedigree. 
 15. \texttt{proband}- the proband status, with \texttt{proband = TRUE} if the individual is the proband and \texttt{FALSE} otherwise. 
 
-Let's draw a pedigree in `study_peds`, in the year 2020. We will take the 39th pedigree out of the 150 generated:
+Let's use `SimRVPedigree`'s built-in `plot()` function to draw a pedigree in `study_peds`, in the year 2020. We will take the 39th pedigree out of the 150 generated:
 
 ```{r}
 
-plot(study_peds[study_peds$FamID == 39, ], ref_year = 2020,
-     cex = 0.5)
-
+plot(study_peds[study_peds$FamID == 39, ], ref_year = 2020, cex = 0.5)
 ```
 
 The legend identifies affected individuals, the proband, and the cRV status of the individuals. 
 Disease-affected individuals have solid shading in the upper-left third of their symbol (IDs 1, 4, 8 and 10).
 The proband (ID 10) has shading in the lower portion of their symbol. 
 Carrier individuals (IDs 1, 4, 7, 9, 10, 12 and 13) have shading in the upper-right portion of their symbol. 
-The seed founder is the individual with ID 1 and he and all his descendants have ages relative to the reference year of 2020. We create age labels at a selected reference year by providing the argument \texttt{ref\_year} to the \texttt{plot()} function. The birth year and the death year of dead individuals are displayed in parentheses. The age of the individuals who are alive at the end of the reference year displays under their symbol.
+The seed founder is the individual with ID 1 and he and all his descendants have ages relative to the reference year of 2020. We create age labels at a selected reference year by providing the argument \texttt{ref\_year} to the \texttt{plot()} function. The birth year and the death year of dead individuals are displayed in parentheses. Following standard practice in medical genetics, individuals who have died as of the reference year have slashes through their symbols. The age of the individuals who are alive at the end of the reference year displays under their symbol.
 Any individual with disease onset before the end of the reference year has a disease-onset year given under their symbol. 
 
 
-For reference, session information giving the versions of R and  
-packages used by the \texttt{SimRVPedigree} package is as follows.
+For reference, session information giving the versions of R and packages
+used by the \texttt{SimRVPedigree} package is as follows.
 
 ```{r}
 # Get the session information

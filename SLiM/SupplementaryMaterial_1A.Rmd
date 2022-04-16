@@ -329,7 +329,7 @@ the sub-population . Then "A" represents autosome, the type of the genome. This 
 
 This SLiM simulation is highly memory intensive and not suitable for most personal computers. 
 We therefore use the Compute Canada cluster (http://www.computecanada.ca) as described next. 
-First, we need to install the SLiM software. The way we install the software is exactly the same as  
+First, we need to install the SLiM software. The way we install the software is exactly the same as
 how we install the software on our own computer. Use the SLiM manual guidelines for this task. 
 After we install SLiM, we use a job scheduler on the compute cluster to run our jobs.
 On the Compute Canada Cluster, the job scheduler is the **Slurm Workload Manager** . 
@@ -383,7 +383,7 @@ library(Matrix)
 library(data.table)
 
 # Read the SLiM output text file to R
-# Note:Change the path for the file as necessary.
+# Note: Change the path for the file as necessary.
 exDat <- readLines("D:/SFU_Vault/SLiM_Output/SLiM_output.txt")
 ```
 
