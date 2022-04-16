@@ -106,7 +106,7 @@ We set the above values for the arguments in the \texttt{sim\_RVped()} function 
 
 # Simulate pedigrees on the Compute Canada cluster
 
-We use the following slurm batch file to submit an array job with a processor for each of the 150 pedigrees. 
+We use the following slurm batch file to submit an array job with a processor for each of the 150 pedigrees.  
 
 ```{bash, eval = FALSE}
 
@@ -130,19 +130,20 @@ In the batch script above, the parameters are set as follows.
 - \texttt{\#SBATCH--account=def-jgraham} - specifies the project account
 on Compute Canada. In this example, the project account is "def-jgraham".
 
-- \texttt{\# SBATCH --array= 1:150}- specifies the array of tasks, one for 
-each of the 150 pedigrees. 
+- \texttt{\# SBATCH --array= 1-150} - specifies an array of tasks with indices 1 
+through 150, one for each of the 150 pedigrees. More generally, users can
+specify indices $x$-$y$ to obtain $y-x+1$ pedigrees.
 
 - \texttt{\#SBATCH--ntasks=1} - defines the number of array tasks per processor. We request 1 processor to run each task (i.e. each one of our 150 pedigrees, will use 1 CPU).
 
 - \texttt{\#SBATCH--mem=40000M } - specifies memory that we require to run each task in the array. We request 4GB. 
 
-- \texttt{\#SBATCH--time=23:59:00}- specifies the time limit for each task. If we allocate 24 hours or more to run a task, we must wait longer in the queue to start a task than if we allocate less than 24 hours.  
+- \texttt{\#SBATCH--time=23:59:00} - specifies the time limit for each task. If we allocate 24 hours or more to run a task, we must wait longer in the queue to start a task than if we allocate less than 24 hours.  
 
 
-- \texttt{module load  nixpkgs/16.09 gcc/5.4.0  r/3.5.0 }- loads the R version that we installed.
+- \texttt{module load  nixpkgs/16.09 gcc/5.4.0  r/3.5.0 } - loads the R version that we installed.
 
-- \texttt{echo "This is job \$ SLURM\_ARRAY\_TASK\_ID out of \$ SLURM\_ARRAY\_TASK\_COUNT jobs."}- prints the job number out of 150 tasks.  
+- \texttt{echo "This is job \$ SLURM\_ARRAY\_TASK\_ID out of \$ SLURM\_ARRAY\_TASK\_COUNT jobs."} - prints the job number out of 150 tasks.  
 
 We use the \texttt{R CMD BATCH} command to submit 
 the \texttt{SimRVpedigree.R} script to the cluster.
@@ -166,7 +167,7 @@ dID = Sys.getenv("SLURM_ARRAY_TASK_ID")
 seed = as.numeric(dID)
 set.seed(seed)
 
-analyseData = function(dataID){
+generatePeds = function(dataID){
 
   # Read the R function that do the analysis	
   out =  sim_RVped(hazard_rates = my_HR,
@@ -186,11 +187,11 @@ analyseData = function(dataID){
 }
 
 # Run the function.
-analyseData(dID)
+generatePeds(dID)
 
 ```
 
-In the above script, we create a function \texttt{analyseData()} which calls the \texttt{sim\_RVped()} function. The \texttt{analyseData()} function has one argument,\texttt{dataID}, for the task identifier created by the cluster scheduler. The environment variable, \texttt{SLURM\_ARRAY\_TASK\_ID}, identifies each task in the array. In the last two lines of the R script above, we use $\texttt{dID = Sys.getenv("SLURM\_ARRAY\_TASK\_ID")}$ to get the task identifier and assign it as the argument to the \texttt{analyseData()} function.
+In the above script, we create a function \texttt{generatePeds()} which calls the \texttt{sim\_RVped()} function. The \texttt{generatePeds()} function has one argument,\texttt{dataID}, for the task identifier created by the cluster scheduler. The environment variable, \texttt{SLURM\_ARRAY\_TASK\_ID}, identifies each task in the array. In the last two lines of the R script above, we use $\texttt{dID = Sys.getenv("SLURM\_ARRAY\_TASK\_ID")}$ to get the task identifier and assign it as the argument to the \texttt{generatePeds()} function.
 \texttt{dID} is also assigned as the random seed for each pedigree. Since each pedigree is a task that is run separately on a different CPU in the cluster, we want to assign a different seed value each time. 
 
 Among the 150 tasks, 140 manage to run within the allocated time period.
