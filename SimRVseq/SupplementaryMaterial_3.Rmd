@@ -43,7 +43,7 @@ library(snpStats)
 This document discusses the gene-dropping step in our work-flow 
 (the orange box labelled 3). Gene-dropping in the ascertained 
 pedigrees is the third and final step required to simulate the exome-sequencing data of affected individuals
-and their relatives connecting them along a 
+and their connecting relatives along a 
 line of descent in the ascertained pedigrees. 
 
 \begin{figure}[H]
@@ -1247,17 +1247,17 @@ write.table(sample_data, "sample_info.txt", row.names=FALSE, quote = FALSE)
 A \texttt{.geno} file gives the RV genotypes in gene-dosage format.
 An individual's dosage of the derived allele is the number of copies 
 they inherited from their parents (i.e. 0, 1 or 2). 
-The \texttt{gene\_data()} function below converts ]pair of RV RV-haplotype pairs into genotypes in gene-dosage format.
+The \texttt{get_geno\_data()} function below converts RV-haplotype pairs into genotypes in gene-dosage format.
 
 ```{r}
 # Convert haplotype pairs into genotypes in gene-dosage format.
-gene_data <- function(geno){
+get_geno_data <- function(haps){
   gene_dosage <- list()
-  IDs <- seq(from = 1, to = nrow(geno), by = 2)
+  IDs <- seq(from = 1, to = nrow(haps), by = 2)
   
   # Get the column sums.
   for(i in 1: length(IDs)){
-    gene_dosage[[i]] <- colSums(geno[IDs[i]:(IDs[i] + 1), ])
+    gene_dosage[[i]] <- colSums(haps[IDs[i]:(IDs[i] + 1), ])
     genotypes <- do.call(rbind, gene_dosage)
   }
   genotypes <- do.call(rbind, gene_dosage)
@@ -1265,19 +1265,19 @@ gene_data <- function(geno){
 }
 ```
 
-Let's call `gene_data()` on chromosome 21 as an example. 
-The function's argument, \texttt{geno}, is filled
+Let's call `get_geno_data()` on chromosome 21 as an example. 
+The function's argument, \texttt{haps}, is filled
 with the sparse matrix \texttt{ped\_haplos} from
 the `study_seq` output.
 
 ```{r}
 # Apply the function to 21st chromosome 
-genotype_data <-  gene_data(study_seq[[21]]$ped_haplos)
+genotype_data <-  get_geno_data(study_seq[[21]]$ped_haplos)
 ```
 
-To convert chromosome 21 haplotypes to individual genotypes in gene-dosage format,  \texttt{gene\_data()} takes approximately 15 seconds on a Windows OS with an i7-8550U @ 1.8GHz,16GB of RAM.
+To convert chromosome 21 haplotypes to individual genotypes in gene-dosage format,  \texttt{get_geno\_data()} takes approximately 15 seconds on a Windows OS with an i7-8550U @ 1.8GHz,16GB of RAM.
 Let's view the first few rows and columns
-of the data frame returned by \texttt{gene\_data()}. 
+of the data frame that is returned.
 
 ```{r}
 # View the first four rows and 12 columns
@@ -1289,12 +1289,12 @@ in our study. The columns represent RVs that reside on the exome
 of chromosome 21. Each entry of the data frame gives the dosage of the derived allele of an RV (i.e. 0, 1 or 2). Most of the entries are 0, 
 as would be expected for RVs. 
 
-The \texttt{gene\_data()} function is applied to all the chromosomes as follows. 
+The \texttt{get_geno\_data()} function is applied to all the chromosomes as follows. 
 
 ```{r, eval=FALSE}
 # Apply function to all chromosomes
 genotype_data <-  lapply(study_seq, function(x){
-  result <- gene_data(x$ped_haplos)
+  result <- get_geno_data(x$ped_haplos)
   colnames(result) <- x$SNV_map$SNV
   result
 })
@@ -1315,13 +1315,13 @@ for(i in 1:22){
 ## \texttt{.var} files
 
 A \texttt{.var} file contains information about the RVs in the columns of the associated \texttt{.geno} file.
-The \texttt{variant\_data()} function below selects 
+The \texttt{get_variant\_data()} function below selects 
 the relevant characteristics of the RVs and stores 
 them in a data frame.
 
 ```{r}
 # Get the variant information to create the .var file
-variant_data <- function(variant){
+get_variant_data <- function(variant){
   # Chromosome number.
   CHROM <- variant$chrom
   # Position.
@@ -1352,13 +1352,13 @@ variant_data <- function(variant){
 }
 ```
 
-Let's call `variant_data()` on chromosome 21 as an example. 
+Let's call `get_variant_data()` on chromosome 21 as an example. 
 The function's argument, `variant`, is filled with the
 \texttt{SNV\_map} data frame from the `study_seq` output.
 
 ```{r}
 # Run the function on chromosome 21 SNV_map data
-variant_info <- variant_data(study_seq[[21]]$SNV_map)
+variant_info <- get_variant_data(study_seq[[21]]$SNV_map)
 ```
 
 The function returns the data frame `variant_info`. Let's view information about the first four RVs in `variant_info`.
@@ -1390,12 +1390,12 @@ a gene in our disease pathway.
 
 9. \texttt{Type}- whether the RV is a synonymous (S) or non-synonymous (NS) mutation.
 
-The \texttt{variant\_data()} function is applied to all the chromosomes as follows. 
+The \texttt{get_variant\_data()} function is applied to all the chromosomes as follows. 
 
 ```{r, eval=FALSE}
 # Apply function to all 22 chromosomes
 SNV_map <- lapply(study_seq, function(x){
-  variant_data(x$SNV_map)
+  get_variant_data(x$SNV_map)
 })
 ```
 
@@ -1499,15 +1499,11 @@ write.table(cRVS,
 
 ## Create PLINK files
 
-- We convert .sam, .var and .geno files to PLINK file formats, .fam, .bim and .bed file formats, respectively. 
+We convert .sam, .var and .geno files to PLINK file formats, .fam, .bim and .bed file formats, respectively. 
+For this task we use the \texttt{write.plink()} function in the \texttt{snpStats} R package.
+For example, let's write chromosome 21's .bim, .fam and .bed files.
 
-- For this task we use the R package, \texttt{snpStats}. The function \texttt{write.plink()} in the \texttt{snpStats} package builds the three PLINK file formats, .fam, .bim and .bed.
-
-- Let's discuss about the \texttt{write.plink()} function and how we arrange the arguments accordingly.
-
-- To this function, we need to supply our sample information, variant information and genotype information. For this, we can use the functions that we created in the previous section to generate .sam, .var and .geno files. As an example, let's write the chromosome 21's .bim, .fam and .bed files using the \texttt{write.plink()} function.
-
-- First we get the sample information. We use \texttt{plink\_format\_samp()} function for this. (We discussed about this function in sub-section 4.2.)
+First we get the sample information with the \texttt{plink\_format\_samp()} function from section 4.2 of this document:
 
 ```{r}
 
@@ -1516,32 +1512,31 @@ sample_data <- plink_format_samp(study_seq[[21]]$ped_files)
 
 ```
 
-- The format of the \texttt{sample\_data} object is discussed in sub-section 4.2.
-
-- Then we get the variant information for chromosome 21 by using the \texttt{variant\_data()} function as follows. (We discussed about this function in sub-section 4.3.)
+Then we get the variant information for chromosome 21 with the \texttt{variant\_data()} function from section 4.3 of this document.
 
 ```{r}
 # Run the function on chromosome 21 SNV_map data
-variant_info <- variant_data(study_seq[[21]]$SNV_map)
+variant_info <- get_variant_data(study_seq[[21]]$SNV_map)
 # Add row names to the variant data data frame
 row.names(variant_info) <- study_seq[[21]]$SNV_map$SNV
 
 ```
 
-- The format of the \texttt{variant\_info} object is discussed in the sub-section 4.3.
-
-- Finally, we need to get the genotypes data for chromosome 21. We use the \texttt{gene\_data()} function, with a tiny modification. The reason for this modification is that when we use the \texttt{write.plink()} function, we need to supply our genotype matrix as an object of class \texttt{SnpMatrix}. In this class, the genotypes are coded as 1, 2 and 3 and 0 indicates the missing values. Therefore, we changed our genotype format as 1, 2 and 3 instead of 0, 1 and 2. The following is the modified \texttt{gene\_data\_new()} function.
+Finally, we get the genotypes data for chromosome 21 by modifying
+the \texttt{get_geno\_data()} function from section 4.2 to code genotype dosage 
+following the \texttt{SnpMatrix} convention of 0 for missing values, 1 for no copies of the alternate allele, 2 for a single copy and 3 for two copies of the alternate allele.
+This modification allows an object of class \texttt{SnpMatrix} to be supplied as an argument to the \texttt{write.plink()} function, as required. 
 
 ```{r}
 # Convert haplotype pairs into genotypes in gene-dosage format.
 
-gene_data_new <- function(geno){
+get_geno_data_new <- function(haps){
   gene_dosage <- list()
-  IDs <- seq(from = 1, to = nrow(geno), by = 2)
+  IDs <- seq(from = 1, to = nrow(haps), by = 2)
   
   # Get the column sums.
   for(i in 1: length(IDs)){
-    gene_dosage[[i]] <- colSums(geno[IDs[i]:(IDs[i] + 1), ]) + 1
+    gene_dosage[[i]] <- colSums(haps[IDs[i]:(IDs[i] + 1), ]) + 1
     genotypes <- do.call(rbind, gene_dosage)
   }
   genotypes <- do.call(rbind, gene_dosage)
@@ -1550,15 +1545,15 @@ gene_data_new <- function(geno){
 
 ```
 
-- We apply the \texttt{gene\_data\_new()} function to the chromosome 21 genotypes.
+We apply the \texttt{get_geno\_data\_new()} function to the SNV haplotypes for chromosome 21.
 
 ```{r}
 # Apply the function to 21st chromosome 
-genotype_data <-  gene_data_new(study_seq[[21]]$ped_haplos)
+genotype_data <-  get_geno_data_new(study_seq[[21]]$ped_haplos)
 
 ```
 
-- Let's view the first few rows and columns of the data frame returned by \texttt{gene\_data()}. 
+Let's view the first few rows and columns of the data frame \texttt{genotype\_data}. 
 
 ```{r}
 # View the first four rows and 12 columns
@@ -1566,24 +1561,24 @@ genotype_data[1:4, 1:12]
 
 ```
 
-- The above output shows that the dosage of the derived allele format is now converted to 1, 2 and 3. (Majority is 1 corresponding to no copies of the variant because the SNVs are rare.)
+In the output above, we see genotype dosages of 1, indicating that the four individuals carry no copies of the alternate (derived) allele at the first twelve SNVs; this is to be expected as most SNVs are rare.
 
-- Then we convert the \texttt{genotype\_data} object into a \texttt{SnpMatrix} object as follows.
+We convert the \texttt{genotype\_data} object into a \texttt{SnpMatrix} object as follows.
 
 ```{r}
 # Add row and column names
 rownames(genotype_data) <- 1:nrow(genotype_data)
 colnames(genotype_data)<- study_seq[[21]]$SNV_map$SNV
 
-# The mode of the genotype_data change as raw
+# Change the mode of the genotype_data to 'raw'
 mode(genotype_data) <- "raw"
 
-# Change the class of the object ad SnpMatrix
+# Change the class of the genotype_data object to SnpMatrix and rename it 'genotypes'
 genotypes <- new("SnpMatrix", genotype_data)
 
 ```
 
-- Then, we apply the \texttt{write.plink()} function to get the .fam, .bim and .bed files of chromosome 21 as follows.
+To obtain PLINK .fam, .bim and .bed files for chromosome 21, we apply the \texttt{write.plink()} function as follows.
 
 ```{r}
 
@@ -1600,26 +1595,24 @@ write.plink(file.base = "chr_21", snp.major = TRUE,
 
 ```
 
-- The function output the .fam, .bim and .bed file corresponding to chromosome 21. 
 
-- The above steps are then apply to all the chromosomes as follows. 
-
-- Apply the \texttt{variant\_data()} function to all the chromosomes.
+We may apply the above steps to all the chromosomes as follows. 
+First, we apply the \texttt{get_variant\_data()} function to all the chromosomes.
 
 ```{r, eval=FALSE}
 # Apply function to all 22 chromosomes
 SNV_map <- lapply(study_seq, function(x){
-  variant_data(x$SNV_map)
+  get_variant_data(x$SNV_map)
 })
 
 ```
 
-- Apply the \texttt{ gene\_data\_new()} function to all the chromosomes.
+Second, we apply the \texttt{ gene\_data\_new()} function to all the chromosomes.
 
 ```{r, eval=FALSE}
 # Apply function to all chromosomes
 genotype_all <-  lapply(study_seq, function(x){
-  result <- gene_data_new(x$ped_haplos)
+  result <- get_geno_data_new(x$ped_haplos)
   colnames(result)<- x$SNV_map$SNV
   rownames(result) <- 1:nrow(result)
   result
@@ -1627,7 +1620,7 @@ genotype_all <-  lapply(study_seq, function(x){
 
 ```
 
-- Convert all the \texttt{genotype\_data} as the object of class \texttt{SnpMatrix}.
+Next, convert \texttt{genotype\_all} to an object of class \texttt{SnpMatrix}.
 
 ```{r, eval=FALSE}
 # Convert objects as the class of SnpMatrix
@@ -1637,7 +1630,7 @@ genotypes <- lapply(genotype_all, function(x){
 
 ```
 
-- Apply the \texttt{write.plink()} function to all chromosomes. 
+To finish, we apply the \texttt{write.plink()} function to all chromosomes. 
 
 ```{r, eval=FALSE}
 
