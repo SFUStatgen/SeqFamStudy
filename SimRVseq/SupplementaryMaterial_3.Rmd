@@ -1110,7 +1110,7 @@ information on chromosome 1.
 
 ```{r}
 # View family 1's entries of haplo_map
-fam1<-(study_seq[[1]]$haplo_map[,"FamID"]==1)
+fam1 <- (study_seq[[1]]$haplo_map[,"FamID"]==1)
 study_seq[[1]]$haplo_map[fam1,]
 ```
 
@@ -1247,7 +1247,7 @@ write.table(sample_data, "sample_info.txt", row.names=FALSE, quote = FALSE)
 A \texttt{.geno} file gives the RV genotypes in gene-dosage format.
 An individual's dosage of the derived allele is the number of copies 
 they inherited from their parents (i.e. 0, 1 or 2). 
-The \texttt{get_geno\_data()} function below converts RV-haplotype pairs into genotypes in gene-dosage format.
+The \texttt{get\_geno\_data()} function below converts RV-haplotype pairs into genotypes in gene-dosage format.
 
 ```{r}
 # Convert haplotype pairs into genotypes in gene-dosage format.
@@ -1275,7 +1275,7 @@ the `study_seq` output.
 genotype_data <-  get_geno_data(study_seq[[21]]$ped_haplos)
 ```
 
-To convert chromosome 21 haplotypes to individual genotypes in gene-dosage format,  \texttt{get_geno\_data()} takes approximately 15 seconds on a Windows OS with an i7-8550U @ 1.8GHz,16GB of RAM.
+To convert chromosome 21 haplotypes to individual genotypes in gene-dosage format,  \texttt{get\_geno\_data()} takes approximately 15 seconds on a Windows OS with an i7-8550U @ 1.8GHz,16GB of RAM.
 Let's view the first few rows and columns
 of the data frame that is returned.
 
@@ -1289,7 +1289,7 @@ in our study. The columns represent RVs that reside on the exome
 of chromosome 21. Each entry of the data frame gives the dosage of the derived allele of an RV (i.e. 0, 1 or 2). Most of the entries are 0, 
 as would be expected for RVs. 
 
-The \texttt{get_geno\_data()} function is applied to all the chromosomes as follows. 
+The \texttt{get\_geno\_data()} function is applied to all the chromosomes as follows. 
 
 ```{r, eval=FALSE}
 # Apply function to all chromosomes
@@ -1315,7 +1315,7 @@ for(i in 1:22){
 ## \texttt{.var} files
 
 A \texttt{.var} file contains information about the RVs in the columns of the associated \texttt{.geno} file.
-The \texttt{get_variant\_data()} function below selects 
+The \texttt{get\_variant\_data()} function below selects 
 the relevant characteristics of the RVs and stores 
 them in a data frame.
 
@@ -1390,7 +1390,7 @@ a gene in our disease pathway.
 
 9. \texttt{Type}- whether the RV is a synonymous (S) or non-synonymous (NS) mutation.
 
-The \texttt{get_variant\_data()} function is applied to all the chromosomes as follows. 
+The \texttt{get\_variant\_data()} function is applied to all the chromosomes as follows. 
 
 ```{r, eval=FALSE}
 # Apply function to all 22 chromosomes
@@ -1523,7 +1523,7 @@ row.names(variant_info) <- study_seq[[21]]$SNV_map$SNV
 ```
 
 Finally, we get the genotypes data for chromosome 21 by modifying
-the \texttt{get_geno\_data()} function from section 4.2 to code genotype dosage 
+the \texttt{get\_geno\_data()} function from section 4.2 to code genotype dosage 
 following the \texttt{SnpMatrix} convention of 0 for missing values, 1 for no copies of the alternate allele, 2 for a single copy and 3 for two copies of the alternate allele.
 This modification allows an object of class \texttt{SnpMatrix} to be supplied as an argument to the \texttt{write.plink()} function, as required. 
 
@@ -1545,7 +1545,7 @@ get_geno_data_new <- function(haps){
 
 ```
 
-We apply the \texttt{get_geno\_data\_new()} function to the SNV haplotypes for chromosome 21.
+We apply the \texttt{get\_geno\_data\_new()} function to the SNV haplotypes for chromosome 21.
 
 ```{r}
 # Apply the function to 21st chromosome 
@@ -1597,17 +1597,19 @@ write.plink(file.base = "chr_21", snp.major = TRUE,
 
 
 We may apply the above steps to all the chromosomes as follows. 
-First, we apply the \texttt{get_variant\_data()} function to all the chromosomes.
+First, we apply the \texttt{get\_variant\_data()} function to all the chromosomes.
 
 ```{r, eval=FALSE}
 # Apply function to all 22 chromosomes
 SNV_map <- lapply(study_seq, function(x){
-  get_variant_data(x$SNV_map)
+   result <- get_variant_data(x$SNV_map)
+   rownames(result)<- x$SNV_map$SNV
+   result
 })
 
 ```
 
-Second, we apply the \texttt{ gene\_data\_new()} function to all the chromosomes.
+Second, we apply the \texttt{get\_geno\_data\_new()} function to all the chromosomes.
 
 ```{r, eval=FALSE}
 # Apply function to all chromosomes
