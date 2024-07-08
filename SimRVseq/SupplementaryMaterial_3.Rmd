@@ -71,7 +71,8 @@ We start by reading the SLiM simulation output, \texttt{SLiM\_output.txt}, into 
 library(Matrix) #this package is required throughout this document
 # Read the text file to R.
 # Note: Change the path for the file as necessary.
-exData <- readLines("D:/SFU_Vault/SLiM_Output/SLiM_output.txt")
+#exData <- readLines("D:/SFU_Vault/SLiM_Output/SLiM_output.txt")
+exData <- readLines("../Zenodo/SLiM_output.txt")
 ```
 
 Next, we select rare SNVs based on their population derived (mutated) allele frequencies, as described in the next subsection. 
@@ -328,7 +329,8 @@ To identify the RVs that lie on the pathway of interest, we use the \texttt{iden
 # Load the output generated from the previous code chunk.
 # Note: Change the path for the file as necessary.
 
-load("Chromwide.Rdata")
+#load("Chromwide.Rdata")
+load("../Zenodo/Chromwide.Rdata")
 
 #----------------------#
 # Identify Pathway SNVs #
@@ -821,7 +823,8 @@ Familial cRVs are sampled on the basis of their population derived-allele freque
 ```{r}
 # Load all 150 pedigrees.
 # Note: Change the path for the file as necessary.
-study_peds <- read.table("study_peds.txt", header=TRUE, sep= " ")
+#study_peds <- read.table("study_peds.txt", header=TRUE, sep= " ")
+study_peds <- read.table("../Zenodo/study_peds.txt", header=TRUE, sep= " ")
 
 # Collect list of FamIDs.
 FamIDs <- unique(study_peds$FamID)
@@ -1311,6 +1314,21 @@ for(i in 1:22){
               row.names=FALSE, quote = FALSE)
 }
 ```
+
+Next, we create a dataframe of IDs to link genotypes to individuals. The IDs for each RV-haplotype are in the dataframe \texttt{haplo\_map} returned by the chromosome-by-chromosome gene drop. We save the IDs for each genotype in a dataframe called \texttt{geno\_key}
+that has rows for genotypes, in the same order as the \texttt{.geno} files, and columns for the family ID and ID.
+
+```{r}
+odd_inds <- seq(from=1,to=nrow(study_seq[[1]]$haplo_map),by=2)
+geno_key <- study_seq[[1]]$haplo_map[odd_inds,c("FamID","ID")]
+```
+
+We then write the \texttt{geno\_key} dataframe as a text file, \texttt{geno\_key.txt}. The text file can be found in our Zenodo repository.
+
+```{r,eval=FALSE}
+write.table(geno_key, "geno_key.txt", row.names=FALSE, quote = FALSE)
+```
+
 
 ## \texttt{.var} files
 
